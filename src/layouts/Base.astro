@@ -1,0 +1,245 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  og_image?: string;
+  schema?: object;
+}
+
+const {
+  title,
+  description = 'AgentBluebook — the unbiased reference guide for real estate agent tools. Honest reviews, head-to-head comparisons, and expert recommendations.',
+  og_image = '/og-default.png',
+  schema
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const categories = [
+  { label: 'CRM', href: '/category/crm' },
+  { label: 'Lead Generation', href: '/category/lead-gen' },
+  { label: 'Marketing', href: '/category/marketing' },
+  { label: 'Transaction Mgmt', href: '/category/transaction' },
+  { label: 'Website Builders', href: '/category/websites' },
+  { label: 'AI Tools', href: '/category/ai-tools' },
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} | AgentBluebook</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={`${title} | AgentBluebook`} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={og_image} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Schema -->
+  {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Fonts preload -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<header class="site-header">
+  <div class="header-top">
+    <div class="container">
+      <div class="header-inner">
+        <a href="/" class="logo" aria-label="AgentBluebook Home">
+          <div class="logo-mark">AB</div>
+          <div class="logo-text">
+            <span class="logo-name">AgentBluebook</span>
+            <span class="logo-tagline">The Real Estate Agent Tool Reference</span>
+          </div>
+        </a>
+        <nav class="main-nav">
+          <a href="/reviews" class="nav-link">Reviews</a>
+          <a href="/comparisons" class="nav-link">Compare</a>
+          <a href="/best-picks" class="nav-link">Best Picks</a>
+          <a href="/methodology" class="nav-link">How We Rate</a>
+        </nav>
+        <button class="mobile-menu-btn" aria-label="Open menu" onclick="toggleMobileMenu()">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="header-cats">
+    <div class="container">
+      <div class="cats-inner">
+        {categories.map(cat => (
+          <a href={cat.href} class="cat-link">{cat.label}</a>
+        ))}
+      </div>
+    </div>
+  </div>
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="container">
+      <nav class="mobile-nav">
+        <a href="/reviews">Reviews</a>
+        <a href="/comparisons">Compare Tools</a>
+        <a href="/best-picks">Best Picks</a>
+        <a href="/methodology">How We Rate</a>
+        <div class="mobile-cats">
+          {categories.map(cat => (
+            <a href={cat.href}>{cat.label}</a>
+          ))}
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- ── MAIN ── -->
+<main>
+  <slot />
+</main>
+
+<!-- ── FOOTER ── -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="logo-mark">AB</div>
+          <span>AgentBluebook</span>
+        </div>
+        <p>The unbiased reference guide for real estate agent tools. We research, test, and compare so you don't waste money on the wrong software.</p>
+        <p class="disclosure">We earn affiliate commissions when you buy through our links. This never affects our ratings. <a href="/methodology">Learn how we review.</a></p>
+      </div>
+      <div class="footer-links">
+        <h4>Categories</h4>
+        <ul>
+          {categories.map(cat => <li><a href={cat.href}>{cat.label}</a></li>)}
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Site</h4>
+        <ul>
+          <li><a href="/reviews">All Reviews</a></li>
+          <li><a href="/comparisons">Comparisons</a></li>
+          <li><a href="/best-picks">Best Picks</a></li>
+          <li><a href="/methodology">Our Methodology</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© {new Date().getFullYear()} AgentBluebook. All rights reserved.</p>
+      <div class="footer-legal">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Use</a>
+        <a href="/affiliate-disclosure">Affiliate Disclosure</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+/* ── Header ── */
+.site-header { background: var(--navy); position: sticky; top: 0; z-index: 100; }
+.header-top { border-bottom: 1px solid rgba(255,255,255,0.08); }
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px; gap: 24px;
+}
+.logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.logo-mark {
+  width: 38px; height: 38px; background: var(--gold);
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 0.85rem; font-weight: 800;
+  color: var(--navy); flex-shrink: 0;
+}
+.logo-text { display: flex; flex-direction: column; }
+.logo-name { font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; color: var(--white); line-height: 1.1; }
+.logo-tagline { font-size: 0.65rem; color: rgba(255,255,255,0.5); letter-spacing: 0.03em; }
+.main-nav { display: flex; gap: 4px; }
+.nav-link {
+  padding: 8px 14px; border-radius: var(--radius-sm);
+  color: rgba(255,255,255,0.75); font-size: 0.875rem; font-weight: 500;
+  transition: all 0.15s;
+}
+.nav-link:hover { color: var(--white); background: rgba(255,255,255,0.08); }
+.header-cats { background: var(--navy-mid); }
+.cats-inner {
+  display: flex; gap: 0; overflow-x: auto;
+  scrollbar-width: none; padding: 0;
+}
+.cats-inner::-webkit-scrollbar { display: none; }
+.cat-link {
+  padding: 10px 16px; color: rgba(255,255,255,0.6);
+  font-size: 0.8125rem; font-weight: 500; white-space: nowrap;
+  border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.cat-link:hover { color: var(--gold); border-bottom-color: var(--gold); }
+.mobile-menu-btn {
+  display: none; flex-direction: column; gap: 5px;
+  background: none; border: none; cursor: pointer; padding: 4px;
+}
+.mobile-menu-btn span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; }
+.mobile-menu { display: none; background: var(--navy-mid); border-top: 1px solid rgba(255,255,255,0.08); }
+.mobile-menu.open { display: block; }
+.mobile-nav { display: flex; flex-direction: column; padding: 16px 0; }
+.mobile-nav a { padding: 10px 0; color: rgba(255,255,255,0.8); font-weight: 500; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.mobile-cats { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; }
+.mobile-cats a {
+  padding: 6px 12px; background: rgba(255,255,255,0.06);
+  border-radius: 20px; font-size: 0.8rem; color: rgba(255,255,255,0.7);
+  border: none;
+}
+
+/* ── Footer ── */
+.site-footer { background: var(--navy); color: rgba(255,255,255,0.7); padding: 64px 0 32px; margin-top: 80px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+.footer-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.footer-logo .logo-mark { width: 32px; height: 32px; font-size: 0.75rem; }
+.footer-logo span { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--white); }
+.footer-brand p { font-size: 0.875rem; line-height: 1.7; margin-bottom: 12px; }
+.disclosure { font-size: 0.8rem !important; opacity: 0.6; }
+.disclosure a { color: var(--gold); text-decoration: underline; }
+.footer-links h4 { color: var(--white); font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; }
+.footer-links ul { list-style: none; }
+.footer-links li { margin-bottom: 8px; }
+.footer-links a { font-size: 0.875rem; color: rgba(255,255,255,0.6); transition: color 0.15s; }
+.footer-links a:hover { color: var(--gold); }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-bottom p { font-size: 0.8125rem; margin: 0; }
+.footer-legal { display: flex; gap: 20px; }
+.footer-legal a { font-size: 0.8125rem; color: rgba(255,255,255,0.5); transition: color 0.15s; }
+.footer-legal a:hover { color: var(--white); }
+
+@media (max-width: 768px) {
+  .main-nav { display: none; }
+  .mobile-menu-btn { display: flex; }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; text-align: center; }
+}
+</style>
+
+<script>
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  menu.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

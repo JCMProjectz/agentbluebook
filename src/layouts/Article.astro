@@ -1,0 +1,294 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  frontmatter: {
+    title: string;
+    description: string;
+    type: 'review' | 'comparison' | 'roundup';
+    category: string;
+    slug: string;
+    publishedAt: string;
+    updatedAt?: string;
+    score?: number;
+    verdict?: string;
+    verdictSub?: string;
+    affiliateUrl?: string;
+    affiliateCta?: string;
+    affiliateNote?: string;
+    priceRange?: string;
+    bestFor?: string;
+    notFor?: string;
+    tools?: { name: string; score: number; bestFor: string; price: string; }[];
+  };
+}
+
+const { frontmatter } = Astro.props;
+const {
+  title, description, type, category, publishedAt, updatedAt,
+  score, verdict, verdictSub, affiliateUrl, affiliateCta,
+  affiliateNote, priceRange, bestFor, notFor
+} = frontmatter;
+
+// Schema based on article type
+const articleSchema = type === 'review' ? {
+  "@context": "https://schema.org",
+  "@type": "Review",
+  "name": title,
+  "description": description,
+  "datePublished": publishedAt,
+  "dateModified": updatedAt || publishedAt,
+  "reviewRating": score ? {
+    "@type": "Rating",
+    "ratingValue": score,
+    "bestRating": 10,
+    "worstRating": 1
+  } : undefined,
+  "author": { "@type": "Organization", "name": "AgentBluebook" },
+  "publisher": { "@type": "Organization", "name": "AgentBluebook", "url": "https://agentbluebook.com" }
+} : {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": title,
+  "description": description,
+  "datePublished": publishedAt,
+  "dateModified": updatedAt || publishedAt,
+  "author": { "@type": "Organization", "name": "AgentBluebook" }
+};
+
+const formattedDate = new Date(publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+const formattedUpdate = updatedAt ? new Date(updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+---
+
+<Base title={title} description={description} schema={articleSchema}>
+
+<article class="article-page">
+
+  <!-- ── ARTICLE HEADER ── -->
+  <header class="article-header">
+    <div class="container">
+      <div class="ah-inner">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span>›</span>
+          <a href={`/category/${frontmatter.category.toLowerCase().replace(/\s+/g, '-')}`}>{category}</a>
+          <span>›</span>
+          <span>{title}</span>
+        </nav>
+
+        <!-- Type tag -->
+        <div class="ah-meta">
+          <span class="tag tag-gold">{category}</span>
+          <span class="tag tag-gray">
+            {type === 'review' ? '📋 Review' : type === 'comparison' ? '⚖️ Comparison' : '🏆 Best Picks'}
+          </span>
+        </div>
+
+        <h1>{title}</h1>
+        <p class="article-desc">{description}</p>
+
+        <!-- Date + disclosure -->
+        <div class="article-byline">
+          <div class="byline-dates">
+            <span>Published {formattedDate}</span>
+            {formattedUpdate && <span> · Updated {formattedUpdate}</span>}
+          </div>
+          <div class="byline-disclosure">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Affiliate links help fund our research. <a href="/affiliate-disclosure">Learn more</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── VERDICT BOX (reviews only) ── -->
+  {type === 'review' && verdict && (
+    <div class="verdict-section">
+      <div class="container">
+        <div class="verdict-box">
+          <div style="display:flex; gap:20px; align-items:flex-start;">
+            {score && <div class="score-badge" style="flex-shrink:0;">{score}</div>}
+            <div style="flex:1;">
+              <div class="verdict-label">AgentBluebook Verdict</div>
+              <h3>{verdict}</h3>
+              {verdictSub && <p>{verdictSub}</p>}
+              <div class="verdict-meta" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;">
+                {priceRange && (
+                  <div class="vm-item">
+                    <span class="vm-label">Price Range</span>
+                    <span class="vm-val">{priceRange}</span>
+                  </div>
+                )}
+                {bestFor && (
+                  <div class="vm-item">
+                    <span class="vm-label">Best For</span>
+                    <span class="vm-val">{bestFor}</span>
+                  </div>
+                )}
+                {notFor && (
+                  <div class="vm-item">
+                    <span class="vm-label">Skip If</span>
+                    <span class="vm-val" style="color:#FCA5A5;">{notFor}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          {affiliateUrl && (
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);">
+              <a href={affiliateUrl} class="btn btn-primary btn-lg" target="_blank" rel="noopener nofollow sponsored">
+                {affiliateCta || `Try It Free →`}
+              </a>
+              {affiliateNote && <p style="font-size:0.8rem;margin-top:8px;opacity:0.6;margin-bottom:0;">{affiliateNote}</p>}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+
+  <!-- ── ARTICLE BODY ── -->
+  <div class="article-body">
+    <div class="article-layout">
+      <!-- Main Content -->
+      <div class="article-main">
+        <div class="article-content">
+          <slot />
+        </div>
+
+        <!-- Bottom CTA -->
+        {affiliateUrl && (
+          <div class="cta-box">
+            <h3>Ready to Try It?</h3>
+            <p>Start your free trial — no credit card required for most plans.</p>
+            <a href={affiliateUrl} class="btn btn-primary btn-lg" target="_blank" rel="noopener nofollow sponsored">
+              {affiliateCta || 'Get Started Free →'}
+            </a>
+          </div>
+        )}
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="article-sidebar">
+        <!-- Quick Facts -->
+        <div class="sidebar-card">
+          <h4>Quick Facts</h4>
+          {score && (
+            <div class="sf-row">
+              <span class="sf-label">Our Score</span>
+              <div class="score-badge" style="width:40px;height:40px;font-size:1rem;">{score}</div>
+            </div>
+          )}
+          {priceRange && (
+            <div class="sf-row">
+              <span class="sf-label">Pricing</span>
+              <span class="sf-val">{priceRange}</span>
+            </div>
+          )}
+          {bestFor && (
+            <div class="sf-row">
+              <span class="sf-label">Best For</span>
+              <span class="sf-val">{bestFor}</span>
+            </div>
+          )}
+          {notFor && (
+            <div class="sf-row">
+              <span class="sf-label">Skip If</span>
+              <span class="sf-val" style="color:var(--red);">{notFor}</span>
+            </div>
+          )}
+          {affiliateUrl && (
+            <a href={affiliateUrl} class="btn btn-navy" style="width:100%;justify-content:center;margin-top:12px;" target="_blank" rel="noopener nofollow sponsored">
+              {affiliateCta || 'Visit Site →'}
+            </a>
+          )}
+        </div>
+
+        <!-- Table of Contents (JS populated) -->
+        <div class="sidebar-card" id="toc-container">
+          <h4>In This Review</h4>
+          <nav id="toc" class="toc-nav"></nav>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+</article>
+
+</Base>
+
+<style>
+/* ── Article Header ── */
+.article-header { background: var(--navy); padding: 48px 0 40px; }
+.ah-inner { max-width: var(--content-width); }
+.breadcrumb { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; font-size: 0.8125rem; color: rgba(255,255,255,0.5); }
+.breadcrumb a { color: rgba(255,255,255,0.5); transition: color 0.15s; }
+.breadcrumb a:hover { color: var(--gold); }
+.ah-meta { display: flex; gap: 8px; margin-bottom: 16px; }
+.article-header h1 { color: var(--white); margin-bottom: 16px; }
+.article-desc { color: rgba(255,255,255,0.75); font-size: 1.125rem; margin-bottom: 20px; }
+.article-byline { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.byline-dates { font-size: 0.8125rem; color: rgba(255,255,255,0.5); }
+.byline-disclosure { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+.byline-disclosure a { color: var(--gold); }
+
+/* ── Verdict ── */
+.verdict-section { background: var(--navy-light); padding: 0 0 40px; }
+.vm-item { display: flex; flex-direction: column; gap: 2px; }
+.vm-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); }
+.vm-val { font-size: 0.9rem; font-weight: 600; color: var(--white); }
+
+/* ── Article Body ── */
+.article-body { padding: 48px 0 80px; }
+.article-layout {
+  max-width: 1100px; margin: 0 auto; padding: 0 24px;
+  display: grid; grid-template-columns: 1fr 280px; gap: 48px; align-items: start;
+}
+.article-sidebar { position: sticky; top: 120px; display: flex; flex-direction: column; gap: 16px; }
+.sidebar-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 20px; }
+.sidebar-card h4 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--navy); margin-bottom: 16px; }
+.sf-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--gray-100); }
+.sf-row:last-of-type { border-bottom: none; }
+.sf-label { font-size: 0.8125rem; color: var(--gray-600); }
+.sf-val { font-size: 0.8125rem; font-weight: 600; color: var(--navy); text-align: right; max-width: 60%; }
+.toc-nav { display: flex; flex-direction: column; gap: 6px; }
+.toc-nav a { font-size: 0.8125rem; color: var(--gray-600); padding: 4px 0 4px 12px; border-left: 2px solid var(--gray-200); transition: all 0.15s; }
+.toc-nav a:hover, .toc-nav a.active { color: var(--navy); border-left-color: var(--gold); }
+
+@media (max-width: 900px) {
+  .article-layout { grid-template-columns: 1fr; }
+  .article-sidebar { position: static; }
+  #toc-container { display: none; }
+}
+</style>
+
+<script>
+// Auto-build table of contents from h2 tags
+document.addEventListener('DOMContentLoaded', () => {
+  const headings = document.querySelectorAll('.article-content h2');
+  const toc = document.getElementById('toc');
+  if (!toc || headings.length === 0) {
+    document.getElementById('toc-container')?.remove();
+    return;
+  }
+  headings.forEach((h, i) => {
+    const id = `section-${i}`;
+    h.id = id;
+    const link = document.createElement('a');
+    link.href = `#${id}`;
+    link.textContent = h.textContent;
+    toc.appendChild(link);
+  });
+  // Highlight active section on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const id = entry.target.id;
+      const link = toc.querySelector(`a[href="#${id}"]`);
+      if (link) link.classList.toggle('active', entry.isIntersecting);
+    });
+  }, { rootMargin: '-80px 0px -70% 0px' });
+  headings.forEach(h => observer.observe(h));
+});
+</script>
