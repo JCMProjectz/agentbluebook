@@ -20,3 +20,4 @@ Connect to Cloudflare Pages:
 ## Content Generation
 Articles are auto-generated via n8n workflow and pushed to `src/pages/` via GitHub API. See `.env.example` for required environment variables.
 
+# agentbluebook
