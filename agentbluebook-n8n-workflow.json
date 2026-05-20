@@ -1,0 +1,383 @@
+{
+  "name": "AgentBluebook Content Pipeline",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 2 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "2",
+      "name": "Get Existing Articles",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [460, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.github.com/repos/JCMProjectz/agentbluebook/contents/src/content/articles",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.GITHUB_TOKEN}}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3",
+      "name": "Extract Existing Slugs",
+      "type": "n8n-nodes-base.code",
+      "position": [680, 300],
+      "parameters": {
+        "jsCode": "const files = $input.all();\nconst slugs = files.map(f => f.json.name.replace('.md', ''));\nreturn [{ json: { existingSlugs: slugs.join(', ') || 'none yet' } }];"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Keyword Research Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [900, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "{{$env.ANTHROPIC_API_KEY}}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "model": "claude-sonnet-4-20250514",
+          "max_tokens": 2000,
+          "tools": [
+            {
+              "type": "web_search_20250305",
+              "name": "web_search"
+            }
+          ],
+          "system": "You are a keyword research expert for AgentBluebook.com, a real estate agent tool review and comparison site. You identify high-value SEO opportunities for articles that help agents choose the right software tools.",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Research and identify 3 keyword opportunities for new articles on AgentBluebook.com.\n\nAlready published (do NOT suggest these): {{$json.existingSlugs}}\n\nSearch for:\n1. What real estate agent tools agents are actively searching for reviews of right now\n2. Popular comparison searches (Tool A vs Tool B) with commercial intent\n3. Roundup searches (best CRM for real estate agents, best lead gen tools, etc)\n\nMix: 2 long-tail low-competition + 1 higher-volume keyword.\n\nReturn ONLY a valid JSON array, no explanation, no markdown code fences:\n[\n  {\n    \"keyword\": \"exact search phrase\",\n    \"title\": \"Full Article Title 2026\",\n    \"slug\": \"url-slug-no-spaces\",\n    \"type\": \"review|comparison|roundup\",\n    \"category\": \"CRM|Lead Generation|Marketing|Transaction|Websites|AI Tools\",\n    \"tools\": [\"Tool Name 1\", \"Tool Name 2\"],\n    \"primaryAffiliateUrl\": \"https://tool.com\",\n    \"primaryAffiliateName\": \"Tool Name\"\n  }\n]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "5",
+      "name": "Parse Keywords",
+      "type": "n8n-nodes-base.code",
+      "position": [1120, 300],
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.content;\n\n// Extract text from Claude's response (may include tool use blocks)\nlet text = '';\nfor (const block of content) {\n  if (block.type === 'text') text += block.text;\n}\n\n// Clean and parse JSON\nconst cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();\nconst keywords = JSON.parse(cleaned);\n\n// Return each keyword as a separate item\nreturn keywords.map(kw => ({ json: kw }));"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Loop Over Keywords",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [1340, 300],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "7",
+      "name": "Research Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1560, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "{{$env.ANTHROPIC_API_KEY}}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "model": "claude-sonnet-4-20250514",
+          "max_tokens": 3000,
+          "tools": [
+            {
+              "type": "web_search_20250305",
+              "name": "web_search"
+            }
+          ],
+          "system": "You are a research analyst for AgentBluebook.com. You research real estate agent software tools thoroughly before articles are written. You search for current pricing, real user complaints, and competitive positioning.",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Research these tools for an article titled: {{$json.title}}\n\nTools to research: {{$json.tools}}\n\nSearch for:\n1. Current pricing for each tool (search \"[tool] pricing 2026\")\n2. Key features of each tool\n3. Real user complaints (search \"[tool] reddit review\" and \"[tool] complaints\")\n4. Which type of agent each tool is best suited for\n5. Affiliate/referral program details if available\n\nReturn ONLY valid JSON, no explanation:\n{\n  \"researchDate\": \"current month and year\",\n  \"tools\": {\n    \"[tool name]\": {\n      \"currentPrice\": \"$X/month\",\n      \"pricingTiers\": [{\"name\": \"Plan\", \"price\": \"$X/mo\", \"users\": \"X\", \"keyFeature\": \"...\"}],\n      \"keyFeatures\": [\"feature 1\", \"feature 2\"],\n      \"userComplaints\": [\"real complaint 1\", \"real complaint 2\"],\n      \"userPraise\": [\"real praise 1\", \"real praise 2\"],\n      \"bestFor\": \"specific agent profile\",\n      \"notFor\": \"who should skip it\"\n    }\n  },\n  \"winnerVerdict\": \"which tool wins and why in one sentence\",\n  \"keyDifferentiator\": \"the single most important difference between the tools\"\n}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "8",
+      "name": "Parse Research",
+      "type": "n8n-nodes-base.code",
+      "position": [1780, 300],
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.content;\nconst keyword = $('Loop Over Keywords').item.json;\n\nlet text = '';\nfor (const block of content) {\n  if (block.type === 'text') text += block.text;\n}\n\nconst cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();\nlet research;\ntry {\n  research = JSON.parse(cleaned);\n} catch(e) {\n  research = { error: 'parse failed', raw: text.substring(0, 500) };\n}\n\nreturn [{ json: { ...keyword, research: JSON.stringify(research) } }];"
+      }
+    },
+    {
+      "id": "9",
+      "name": "Article Generator",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [2000, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "{{$env.ANTHROPIC_API_KEY}}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "model": "claude-sonnet-4-20250514",
+          "max_tokens": 8000,
+          "system": "You are a senior editor at AgentBluebook.com writing expert real estate agent tool reviews. You write with authority, specificity, and honesty. You never use vague marketing language. Every claim includes specific data. Your goal is to help agents make confident, informed software decisions.",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Write a complete article for AgentBluebook.com.\n\nTitle: {{$json.title}}\nType: {{$json.type}}\nCategory: {{$json.category}}\nSlug: {{$json.slug}}\nPrimary affiliate URL: {{$json.primaryAffiliateUrl}}\nPrimary affiliate name: {{$json.primaryAffiliateName}}\n\nResearch data: {{$json.research}}\n\nToday's date: {{$now.format('YYYY-MM-DD')}}\n\nWrite the complete markdown file. Start with YAML frontmatter between --- markers.\n\nFRONTMATTER RULES:\n- title: full article title in quotes\n- description: 150 char SEO description in quotes\n- type: {{$json.type}}\n- category: {{$json.category}}\n- publishedAt: today's date\n- score: number 1-10 (reviews only, omit for roundups)\n- verdict: one sharp sentence — who it's best for and why\n- verdictSub: two sentences expanding the verdict with specific conditions\n- affiliateUrl: {{$json.primaryAffiliateUrl}}\n- affiliateCta: \"Try [Name] Free →\"\n- priceRange: \"$X-$Y/month\" from research\n- bestFor: specific agent profile (not vague)\n- notFor: who should skip it (not vague)\n\nARTICLE RULES:\n- Minimum 1500 words\n- H2 sections: What Is [Tool], What It Does Well, What It Gets Wrong, Who Should Buy [Tool], [Comparison Table Section], Our Verdict\n- Include a markdown pricing table with verified current prices\n- Include this exact HTML for pros/cons (do not modify the class names):\n<div class=\"pros-cons\">\n  <div class=\"pros\"><h4>✓ What Works</h4><ul><li>item</li></ul></div>\n  <div class=\"cons\"><h4>✗ What Doesn't</h4><ul><li>item</li></ul></div>\n</div>\n- Include a head-to-head comparison table vs top 2 competitors\n- Every price must include \"(verified [Month Year])\"\n- Verdict section must include: who should buy, who should skip, one specific payoff scenario with dollar amounts, one specific waste scenario\n- NEVER use: robust, comprehensive, powerful, seamless, game-changer, cutting-edge, leverage\n- BE SPECIFIC: exact prices, exact features, exact agent profiles\n\nReturn the complete markdown file content ONLY. No explanation before or after."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "10",
+      "name": "Quality Check",
+      "type": "n8n-nodes-base.code",
+      "position": [2220, 300],
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst keyword = $('Parse Research').item.json;\n\nlet articleContent = '';\nfor (const block of response.content) {\n  if (block.type === 'text') articleContent += block.text;\n}\n\n// Quality checks\nconst wordCount = articleContent.split(/\\s+/).length;\nconst hasFrontmatter = articleContent.includes('---');\nconst hasPrice = articleContent.includes('/mo') || articleContent.includes('/month');\nconst hasVerified = articleContent.toLowerCase().includes('verified');\nconst hasProsCons = articleContent.includes('pros-cons');\nconst hasTable = articleContent.includes('|---');\n\nconst passed = wordCount > 1000 && hasFrontmatter && hasPrice && hasProsCons && hasTable;\n\nif (!passed) {\n  console.log(`Quality check failed: words=${wordCount}, frontmatter=${hasFrontmatter}, price=${hasPrice}, prosCons=${hasProsCons}, table=${hasTable}`);\n  return [{ json: { passed: false, reason: `Failed checks: words=${wordCount}` } }];\n}\n\n// Encode content for GitHub API\nconst base64Content = Buffer.from(articleContent).toString('base64');\n\nreturn [{\n  json: {\n    passed: true,\n    slug: keyword.slug,\n    title: keyword.title,\n    filename: `${keyword.slug}.md`,\n    base64Content,\n    wordCount\n  }\n}];"
+      }
+    },
+    {
+      "id": "11",
+      "name": "Check Passed",
+      "type": "n8n-nodes-base.if",
+      "position": [2440, 300],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.passed}}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "12",
+      "name": "Push to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [2660, 200],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/JCMProjectz/agentbluebook/contents/src/content/articles/{{$json.filename}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.GITHUB_TOKEN}}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "message": "=Auto-publish: {{$json.title}}",
+          "content": "={{$json.base64Content}}"
+        }
+      }
+    },
+    {
+      "id": "13",
+      "name": "Wait for Deploy",
+      "type": "n8n-nodes-base.wait",
+      "position": [2880, 200],
+      "parameters": {
+        "amount": 90,
+        "unit": "seconds"
+      }
+    },
+    {
+      "id": "14",
+      "name": "Ping Google Indexing API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [3100, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "https://indexing.googleapis.com/v3/urlNotifications:publish",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.GOOGLE_INDEXING_TOKEN}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "url": "=https://agentbluebook.com/{{$('Quality Check').item.json.slug}}/",
+          "type": "URL_UPDATED"
+        }
+      }
+    },
+    {
+      "id": "15",
+      "name": "Log Success",
+      "type": "n8n-nodes-base.code",
+      "position": [3320, 200],
+      "parameters": {
+        "jsCode": "const slug = $('Quality Check').item.json.slug;\nconst title = $('Quality Check').item.json.title;\nconst wordCount = $('Quality Check').item.json.wordCount;\nconsole.log(`✅ Published: ${title} (${wordCount} words) → agentbluebook.com/${slug}/`);\nreturn [{ json: { status: 'published', slug, title, wordCount, timestamp: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "16",
+      "name": "Log Quality Fail",
+      "type": "n8n-nodes-base.code",
+      "position": [2660, 420],
+      "parameters": {
+        "jsCode": "console.log('❌ Quality check failed:', $json.reason);\nreturn [{ json: { status: 'failed', reason: $json.reason } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [[{ "node": "Get Existing Articles", "type": "main", "index": 0 }]]
+    },
+    "Get Existing Articles": {
+      "main": [[{ "node": "Extract Existing Slugs", "type": "main", "index": 0 }]]
+    },
+    "Extract Existing Slugs": {
+      "main": [[{ "node": "Keyword Research Agent", "type": "main", "index": 0 }]]
+    },
+    "Keyword Research Agent": {
+      "main": [[{ "node": "Parse Keywords", "type": "main", "index": 0 }]]
+    },
+    "Parse Keywords": {
+      "main": [[{ "node": "Loop Over Keywords", "type": "main", "index": 0 }]]
+    },
+    "Loop Over Keywords": {
+      "main": [[{ "node": "Research Agent", "type": "main", "index": 0 }]]
+    },
+    "Research Agent": {
+      "main": [[{ "node": "Parse Research", "type": "main", "index": 0 }]]
+    },
+    "Parse Research": {
+      "main": [[{ "node": "Article Generator", "type": "main", "index": 0 }]]
+    },
+    "Article Generator": {
+      "main": [[{ "node": "Quality Check", "type": "main", "index": 0 }]]
+    },
+    "Quality Check": {
+      "main": [[{ "node": "Check Passed", "type": "main", "index": 0 }]]
+    },
+    "Check Passed": {
+      "main": [
+        [{ "node": "Push to GitHub", "type": "main", "index": 0 }],
+        [{ "node": "Log Quality Fail", "type": "main", "index": 0 }]
+      ]
+    },
+    "Push to GitHub": {
+      "main": [[{ "node": "Wait for Deploy", "type": "main", "index": 0 }]]
+    },
+    "Wait for Deploy": {
+      "main": [[{ "node": "Ping Google Indexing API", "type": "main", "index": 0 }]]
+    },
+    "Ping Google Indexing API": {
+      "main": [[{ "node": "Log Success", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  }
+}
