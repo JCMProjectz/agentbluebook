@@ -20,43 +20,22 @@ import Base from '../layouts/Base.astro';
 <section class="method-body section">
   <div class="content-width">
 
-    <h2>Our Five Scoring Dimensions</h2>
-    <p>Every tool reviewed on AgentBluebook receives a score from 1-10 across five dimensions. The final score is a weighted average that reflects what actually matters to working real estate agents.</p>
+    <h2>One Score, Judged Holistically</h2>
+    <p>Every review on AgentBluebook carries a single score from 1 to 10. It is not a weighted average of sub-scores — it's a holistic judgment of the overall case for the tool: what it costs, what it actually does, what real users report, and how it stacks up against its closest alternatives. A high score means the tool is clearly worth the money for the agents it's built for; a low score means most agents should look elsewhere.</p>
 
-    <div class="scoring-grid">
-      <div class="score-dim">
-        <div class="sd-icon">💰</div>
-        <h3>Value for Money (25%)</h3>
-        <p>Does the tool justify its price tag for the agents who need it? We compare cost against feature depth and calculate the realistic ROI for different agent profiles. A $299/month platform that saves 10 hours per week scores higher than a $49 tool that barely moves the needle.</p>
-      </div>
-      <div class="score-dim">
-        <div class="sd-icon">⚡</div>
-        <h3>Ease of Use (20%)</h3>
-        <p>Time-to-value matters. We look at onboarding time, UI clarity, mobile app quality, and how long it takes a new user to run their first workflow. Tools that require an implementation specialist to get started score lower.</p>
-      </div>
-      <div class="score-dim">
-        <div class="sd-icon">🔧</div>
-        <h3>Feature Depth (25%)</h3>
-        <p>Does the tool do the job it claims? We evaluate core features against what agents actually need — not the marketing page feature list. A CRM with 50 integrations but unreliable lead routing scores lower than one with 20 integrations that works every time.</p>
-      </div>
-      <div class="score-dim">
-        <div class="sd-icon">🎧</div>
-        <h3>Support Quality (15%)</h3>
-        <p>We review G2, Capterra, and Reddit feedback for real support experiences. Response time, issue resolution, and whether problems actually get fixed weigh into this score.</p>
-      </div>
-      <div class="score-dim">
-        <div class="sd-icon">📈</div>
-        <h3>ROI Clarity (15%)</h3>
-        <p>Can you measure whether this tool is working? Tools with built-in analytics, clear attribution, and measurable outcomes score higher. "Trust us, it's working" tools score lower.</p>
-      </div>
-    </div>
+    <h2>How Reviews Are Produced</h2>
+    <p>AgentBluebook reviews are researched and written by an AI pipeline, working from a fresh research file compiled for each tool — and that's worth being upfront about. The score is AI-generated from that research, not hand-assigned. Two things keep it honest:</p>
+    <ul>
+      <li><strong>Every factual claim is grounded in the research file</strong> — current pricing pulled from the vendor's site at publish time, user sentiment from real reviews and agent communities, and a like-for-like comparison against the two closest competitors. Reviews that fail our automated quality checks (missing pricing, missing comparison, thin content) don't get published.</li>
+      <li><strong>Nothing commercial touches the score.</strong> Affiliate commissions, or the absence of an affiliate program, play no role in what gets reviewed or how it scores.</li>
+    </ul>
+    <p>If you spot an error in a published review, <a href="/contact">tell us</a> — corrections get priority.</p>
 
-    <h2>How We Research Every Review</h2>
-    <p>Every review follows a four-step research process:</p>
+    <h2>What Goes Into the Research File</h2>
     <ol>
-      <li><strong>Current pricing verification.</strong> We pull live pricing from each tool's official website. Prices update constantly — we don't rely on data older than 30 days. Every article shows a "last verified" date.</li>
+      <li><strong>Current pricing verification.</strong> Pricing is pulled from each tool's official website when the article is published or updated, and pricing tables state when they were verified. Always confirm current pricing with the vendor before buying.</li>
       <li><strong>Feature documentation.</strong> We document the actual feature set from the product, not the marketing copy.</li>
-      <li><strong>User sentiment analysis.</strong> We review real user feedback from G2, Capterra, Trustpilot, and relevant Reddit communities (r/realestate, r/realtors, BiggerPockets forums). We look for patterns in complaints — single bad reviews don't count, systematic issues do.</li>
+      <li><strong>User sentiment analysis.</strong> We review real user feedback from sources like G2, Capterra, and agent communities on Reddit. We look for patterns in complaints — single bad reviews don't count, systematic issues do.</li>
       <li><strong>Head-to-head positioning.</strong> Every review includes a comparison against the two closest alternatives, using the same criteria.</li>
     </ol>
 
@@ -71,13 +50,13 @@ import Base from '../layouts/Base.astro';
     </ul>
 
     <h2>How Often We Update Reviews</h2>
-    <p>Real estate software pricing and features change constantly. Our update policy:</p>
+    <p>Real estate software pricing and features change constantly. Here's what you can rely on:</p>
     <ul>
-      <li>Pricing is verified before every publish and update.</li>
-      <li>Major feature changes trigger a full review update.</li>
-      <li>Scores are re-evaluated quarterly against the current competitive landscape.</li>
-      <li>Every article shows a "last updated" date so you know how fresh the data is.</li>
+      <li>Pricing is verified whenever an article is published or updated — never invented, never carried over unchecked.</li>
+      <li>Every article shows its published date (and last-updated date when it's been revised), so you always know how fresh the data is.</li>
+      <li>Reader-reported errors are the fastest path to an update — <a href="/contact">report one here</a>.</li>
     </ul>
+    <p>We don't currently promise a fixed re-review schedule. When an article's data is older than the market, the dates on the page will tell you.</p>
 
   </div>
 </section>
@@ -94,10 +73,5 @@ import Base from '../layouts/Base.astro';
 .method-body ol, .method-body ul { padding-left: 24px; margin-bottom: 1.25rem; }
 .method-body li { margin-bottom: 10px; color: var(--gray-600); line-height: 1.7; }
 .method-body strong { color: var(--navy); }
-.scoring-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0 40px; }
-.score-dim { background: var(--off-white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; }
-.sd-icon { font-size: 2rem; margin-bottom: 12px; }
-.score-dim h3 { font-size: 1rem; margin-bottom: 8px; }
-.score-dim p { font-size: 0.9rem; margin: 0; }
-@media (max-width: 600px) { .scoring-grid { grid-template-columns: 1fr; } }
+.method-body a { color: var(--navy); text-decoration: underline; }
 </style>
