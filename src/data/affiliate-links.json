@@ -1,0 +1,6 @@
+{
+  "_readme": "Tool name -> approved affiliate URL. To add a newly approved link, add one line to 'links' and commit — the n8n content pipeline reads this file at the start of every run and applies it automatically; no workflow or code changes needed. Names are matched case-insensitively ignoring spaces and punctuation ('Follow Up Boss' == 'followupboss'). Tools not listed here keep their plain vendor URL.",
+  "links": {
+    "DealCheck": "https://dealcheck.io/?fp_ref=agentbluebook"
+  }
+}
