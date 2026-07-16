@@ -1,0 +1,88 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { CATEGORIES, getPublishedArticles, articlesInCategory } from '../../lib/site';
+
+export async function getStaticPaths() {
+  return CATEGORIES.map(category => ({
+    params: { slug: category.slug },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+const articles = articlesInCategory(await getPublishedArticles(), category.slug);
+
+const listSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: `${category.navLabel} for Real Estate Agents`,
+  numberOfItems: articles.length,
+  itemListElement: articles.map((a, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: `https://agentbluebook.com/${a.slug}`,
+    name: a.data.title,
+  })),
+};
+---
+
+<Base
+  title={`${category.navLabel} for Real Estate Agents — Reviews & Comparisons`}
+  description={`${category.description}. Honest ${category.navLabel.toLowerCase()} reviews for real estate agents with verified pricing and clear verdicts.`}
+  schema={listSchema}
+>
+  <section class="cat-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>›</span>
+        <span>{category.navLabel}</span>
+      </nav>
+      <div class="cat-hero-title">
+        <span class="cat-hero-icon">{category.icon}</span>
+        <h1>{category.navLabel}</h1>
+      </div>
+      <p>{category.description}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      {articles.length > 0 ? (
+        <>
+          <p class="cat-count-line">{articles.length} {articles.length === 1 ? 'article' : 'articles'} in this category</p>
+          <div class="listing-grid">
+            {articles.map(article => <ArticleCard article={article} />)}
+          </div>
+        </>
+      ) : (
+        <div class="empty-state">
+          <div class="empty-icon">{category.icon}</div>
+          <h2>Reviews coming soon</h2>
+          <p>We haven't published {category.navLabel.toLowerCase()} reviews yet. When we do, they'll follow the same methodology as everything else on the site — verified pricing, honest scores, clear verdicts.</p>
+          <a href="/reviews" class="btn btn-navy">Browse Published Reviews →</a>
+        </div>
+      )}
+    </div>
+  </section>
+</Base>
+
+<style>
+.cat-hero { background: var(--navy); padding: 48px 0 56px; }
+.breadcrumb { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; font-size: 0.8125rem; color: rgba(255,255,255,0.5); }
+.breadcrumb a { color: rgba(255,255,255,0.5); transition: color 0.15s; }
+.breadcrumb a:hover { color: var(--gold); }
+.cat-hero-title { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.cat-hero-icon { font-size: 2rem; }
+.cat-hero h1 { color: var(--white); margin: 0; }
+.cat-hero p { color: rgba(255,255,255,0.75); font-size: 1.0625rem; max-width: 640px; margin: 0; }
+.cat-count-line { font-size: 0.875rem; color: var(--gray-600); margin-bottom: 24px; }
+.listing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.empty-state { text-align: center; padding: 64px 24px; background: var(--off-white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); max-width: 560px; margin: 0 auto; }
+.empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.empty-state h2 { margin-bottom: 8px; }
+.empty-state p { color: var(--gray-600); margin-bottom: 24px; }
+@media (max-width: 900px) { .listing-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .listing-grid { grid-template-columns: 1fr; } }
+</style>

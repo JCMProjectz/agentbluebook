@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import { CONTACT_EMAIL } from '../lib/site';
+---
+
+<Base
+  title="Affiliate Disclosure"
+  description="How AgentBluebook is funded: we earn affiliate commissions on some links, disclosed on every page, and they never influence our scores or rankings."
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="tag tag-gold">Disclosure</span>
+      <h1>Affiliate Disclosure</h1>
+      <p>Full transparency about how this site makes money.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="content-width page-body">
+      <h2>The short version</h2>
+      <p>AgentBluebook earns affiliate commissions when you sign up for some tools through links on this site. Those links are how we fund research. They never change what we write, the score a tool receives, or where it ranks.</p>
+
+      <h2>The details</h2>
+      <ul>
+        <li>When an article contains affiliate links, a disclosure appears on that page. Affiliate links carry a <code>rel="sponsored"</code> attribute.</li>
+        <li>Commission rates play no role in scores or rankings. Our scoring criteria are published on the <a href="/methodology">methodology page</a>.</li>
+        <li>Tools without affiliate programs are reviewed under exactly the same criteria as tools with them.</li>
+        <li>Negative verdicts stay published even when they cost us commissions.</li>
+        <li>Clicking an affiliate link never costs you anything extra — pricing is identical either way.</li>
+      </ul>
+
+      <h2>FTC compliance</h2>
+      <p>This disclosure is provided in accordance with the Federal Trade Commission's guidelines on endorsements and testimonials (16 CFR Part 255). AgentBluebook's affiliate relationships constitute a material connection to some of the products discussed on this site.</p>
+
+      <h2>Questions</h2>
+      <p>If anything about our funding model is unclear, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+.page-hero { background: var(--navy); padding: 64px 0; }
+.page-hero .tag { margin-bottom: 16px; display: inline-block; }
+.page-hero h1 { color: var(--white); margin-bottom: 16px; }
+.page-hero p { color: rgba(255,255,255,0.75); font-size: 1.125rem; max-width: 680px; margin: 0; }
+.page-body h2 { margin: 40px 0 16px; }
+.page-body p, .page-body li { color: var(--gray-600); line-height: 1.7; }
+.page-body p { margin-bottom: 1.25rem; }
+.page-body ul { padding-left: 24px; margin-bottom: 1.25rem; }
+.page-body li { margin-bottom: 10px; }
+.page-body a { color: var(--navy); text-decoration: underline; }
+</style>

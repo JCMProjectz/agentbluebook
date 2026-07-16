@@ -1,0 +1,15 @@
+---
+import ListingPage from '../components/ListingPage.astro';
+import { getPublishedArticles } from '../lib/site';
+
+const articles = (await getPublishedArticles()).filter(a => a.data.type === 'comparison');
+---
+
+<ListingPage
+  title="Tool Comparisons"
+  description="Head-to-head comparisons of real estate agent software — features, verified pricing, and which tool wins for each type of agent."
+  heroTitle="Head-to-Head Comparisons"
+  heroText="Two tools, same criteria, one clear winner for each type of agent. Every comparison uses verified current pricing."
+  articles={articles}
+  emptyMessage="We're researching our first head-to-head comparisons now. In the meantime, every review includes a comparison table against the tool's two closest competitors."
+/>

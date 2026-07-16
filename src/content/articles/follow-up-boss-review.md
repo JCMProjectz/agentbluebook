@@ -1,27 +1,20 @@
 ---
-import Article from '../layouts/Article.astro';
-
-const frontmatter = {
-  title: "Follow Up Boss Review 2026: Is It Worth $69/Month?",
-  description: "An honest breakdown of Follow Up Boss pricing, features, and exactly which agents should — and shouldn't — pay for it.",
-  type: "review",
-  category: "CRM",
-  slug: "follow-up-boss-review",
-  publishedAt: "2026-05-01",
-  updatedAt: "2026-05-19",
-  score: 9.2,
-  verdict: "The best real estate CRM for high-volume teams — overkill for solo agents with under 50 leads/month",
-  verdictSub: "Follow Up Boss earns its $69-$499/month price tag only if you're managing leads from multiple sources. Solo agents with a single lead source will pay for features they never touch.",
-  affiliateUrl: "https://www.followupboss.com/?utm_source=agentbluebook",
-  affiliateCta: "Start Free 14-Day Trial →",
-  affiliateNote: "No credit card required. 14-day free trial on all plans.",
-  priceRange: "$69–$499/month",
-  bestFor: "Teams pulling leads from 3+ sources",
-  notFor: "Solo agents with under 50 leads/month"
-};
+title: "Follow Up Boss Review 2026: Is It Worth $69/Month?"
+description: "An honest breakdown of Follow Up Boss pricing, features, and exactly which agents should — and shouldn't — pay for it."
+type: "review"
+category: "CRM"
+publishedAt: "2026-05-01"
+updatedAt: "2026-05-19"
+score: 9.2
+verdict: "The best real estate CRM for high-volume teams — overkill for solo agents with under 50 leads/month"
+verdictSub: "Follow Up Boss earns its $69-$499/month price tag only if you're managing leads from multiple sources. Solo agents with a single lead source will pay for features they never touch."
+affiliateUrl: "https://www.followupboss.com/?utm_source=agentbluebook"
+affiliateCta: "Start Free 14-Day Trial →"
+affiliateNote: "No credit card required. 14-day free trial on all plans."
+priceRange: "$69–$499/month"
+bestFor: "Teams pulling leads from 3+ sources"
+notFor: "Solo agents with under 50 leads/month"
 ---
-
-<Article frontmatter={frontmatter}>
 
 ## What Is Follow Up Boss?
 
@@ -105,5 +98,3 @@ Follow Up Boss is the best real estate CRM on the market for teams and agents ru
 If you're a solo agent with a single lead source and under 50 leads per month, it's overkill. Start with LionDesk and upgrade when you outgrow it.
 
 **Score: 9.2/10**
-
-</Article>

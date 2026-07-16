@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Page Not Found"
+  description="That page doesn't exist on AgentBluebook."
+>
+  <section class="section">
+    <div class="container nf-wrap">
+      <div class="nf-code">404</div>
+      <h1>That page doesn't exist</h1>
+      <p>The link may be outdated, or the article may not have been published yet.</p>
+      <div class="nf-actions">
+        <a href="/" class="btn btn-primary">Back to Home →</a>
+        <a href="/reviews" class="btn btn-outline">Browse Reviews</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+.nf-wrap { text-align: center; padding: 64px 24px; }
+.nf-code { font-family: var(--font-display); font-size: 5rem; font-weight: 800; color: var(--gold); line-height: 1; margin-bottom: 16px; }
+.nf-wrap h1 { margin-bottom: 12px; }
+.nf-wrap p { color: var(--gray-600); margin-bottom: 32px; }
+.nf-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+</style>

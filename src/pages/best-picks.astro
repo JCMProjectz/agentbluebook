@@ -1,0 +1,15 @@
+---
+import ListingPage from '../components/ListingPage.astro';
+import { getPublishedArticles } from '../lib/site';
+
+const articles = (await getPublishedArticles()).filter(a => a.data.type === 'roundup');
+---
+
+<ListingPage
+  title="Best Picks"
+  description="Our top-rated real estate agent tools by category — roundups built on verified pricing and honest scoring, updated as the market changes."
+  heroTitle="Best Picks"
+  heroText="Category roundups: the tools we'd actually recommend, matched to the type of agent each one fits. Built on the same scoring methodology as our reviews."
+  articles={articles}
+  emptyMessage="Our first category roundups are in the works. Until then, browse individual reviews — each ends with a clear verdict on who should buy."
+/>

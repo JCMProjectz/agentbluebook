@@ -1,0 +1,15 @@
+---
+import ListingPage from '../components/ListingPage.astro';
+import { getPublishedArticles } from '../lib/site';
+
+const articles = await getPublishedArticles();
+---
+
+<ListingPage
+  title="All Reviews & Comparisons"
+  description="Every real estate agent tool review published on AgentBluebook — honest scores, verified pricing, and clear verdicts on CRM, lead gen, and marketing software."
+  heroTitle="All Reviews"
+  heroText="Every review we've published, newest first. Each one includes verified current pricing, an honest score, and a clear verdict on who should buy — and who should skip."
+  articles={articles}
+  emptyMessage="Our first reviews are being researched now."
+/>

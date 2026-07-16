@@ -1,5 +1,6 @@
 ---
 import Base from './Base.astro';
+import { categorySlug } from '../lib/site';
 
 interface Props {
   frontmatter: {
@@ -72,7 +73,7 @@ const formattedUpdate = updatedAt ? new Date(updatedAt).toLocaleDateString('en-U
         <nav class="breadcrumb" aria-label="Breadcrumb">
           <a href="/">Home</a>
           <span>›</span>
-          <a href={`/category/${frontmatter.category.toLowerCase().replace(/\s+/g, '-')}`}>{category}</a>
+          <a href={`/category/${categorySlug(frontmatter.category)}`}>{category}</a>
           <span>›</span>
           <span>{title}</span>
         </nav>

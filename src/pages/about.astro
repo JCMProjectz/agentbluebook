@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="About AgentBluebook"
+  description="AgentBluebook is an independent review site for real estate agent software — honest reviews with verified pricing, funded by affiliate commissions that never influence scores."
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="tag tag-gold">About</span>
+      <h1>The Bluebook for Real Estate Agent Tools</h1>
+      <p>Kelley Blue Book works because it tells you what a car is actually worth — independent of what the dealer says. AgentBluebook applies the same idea to real estate agent software.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="content-width page-body">
+      <h2>Why this site exists</h2>
+      <p>Real estate agents are sold software constantly — CRMs, lead generation platforms, marketing suites, AI tools — and almost every "review" site ranking them is a thinly disguised ad. Rankings follow commission rates, prices are months out of date, and nobody ever says "skip this one."</p>
+      <p>AgentBluebook exists to be the reference guide instead: current verified pricing, scores that follow a published methodology, and a clear verdict on every tool — including who should <em>not</em> buy it.</p>
+
+      <h2>How we're funded</h2>
+      <p>We earn affiliate commissions when readers sign up for tools through our links. That funding model is disclosed on every page it applies to, and it never changes a score or a ranking — our <a href="/methodology">methodology</a> explains exactly how reviews are produced, and our <a href="/affiliate-disclosure">affiliate disclosure</a> spells out the policy.</p>
+
+      <h2>We're just getting started</h2>
+      <p>AgentBluebook is a young site. Our review library is small today and growing steadily — every article we publish follows the same standard: verified pricing, specific claims, and an honest verdict. If there's a tool you want reviewed, <a href="/contact">tell us</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+.page-hero { background: var(--navy); padding: 64px 0; }
+.page-hero .tag { margin-bottom: 16px; display: inline-block; }
+.page-hero h1 { color: var(--white); margin-bottom: 16px; }
+.page-hero p { color: rgba(255,255,255,0.75); font-size: 1.125rem; max-width: 680px; margin: 0; }
+.page-body h2 { margin: 40px 0 16px; }
+.page-body p { color: var(--gray-600); line-height: 1.7; margin-bottom: 1.25rem; }
+.page-body a { color: var(--navy); text-decoration: underline; }
+</style>

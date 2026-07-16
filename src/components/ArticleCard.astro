@@ -1,0 +1,34 @@
+---
+import type { Article } from '../lib/site';
+import { TYPE_LABELS } from '../lib/site';
+
+interface Props {
+  article: Article;
+}
+
+const { article } = Astro.props;
+const { title, description, category, type, score, verdict, priceRange } = article.data;
+---
+
+<a href={`/${article.slug}`} class="review-card card">
+  <div class="rc-top">
+    <span class="tag tag-gold">{category}</span>
+    {score ? <div class="score-badge">{score}</div> : <span class="tag tag-gray">{TYPE_LABELS[type] ?? type}</span>}
+  </div>
+  <h3 class="rc-title">{title}</h3>
+  <p class="rc-excerpt">{description}</p>
+  <div class="rc-meta">
+    {verdict && <span class="rc-verdict">✓ {verdict}</span>}
+    {priceRange && <span class="rc-price">{priceRange}</span>}
+  </div>
+</a>
+
+<style>
+.review-card { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+.rc-top { display: flex; justify-content: space-between; align-items: center; }
+.rc-title { font-size: 1.2rem; margin: 0; }
+.rc-excerpt { color: var(--gray-600); font-size: 0.9375rem; line-height: 1.6; margin: 0; flex: 1; }
+.rc-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: auto; flex-wrap: wrap; }
+.rc-verdict { font-size: 0.8125rem; font-weight: 600; color: var(--green); }
+.rc-price { font-size: 0.8125rem; font-weight: 600; color: var(--gray-600); font-family: var(--font-mono); }
+</style>

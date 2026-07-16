@@ -1,0 +1,47 @@
+---
+import Base from '../layouts/Base.astro';
+import { CONTACT_EMAIL } from '../lib/site';
+---
+
+<Base
+  title="Contact AgentBluebook"
+  description="Suggest a tool for review, report a pricing error, or ask about our methodology — here's how to reach AgentBluebook."
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="tag tag-gold">Contact</span>
+      <h1>Get in Touch</h1>
+      <p>Corrections make the site better. If we've got a price wrong or you want a tool reviewed, we want to hear it.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="content-width page-body">
+      <div class="contact-card card">
+        <h2>Email us</h2>
+        <p><a href={`mailto:${CONTACT_EMAIL}`} class="contact-email">{CONTACT_EMAIL}</a></p>
+        <p class="contact-note">We read everything. Good reasons to write:</p>
+        <ul>
+          <li><strong>Pricing corrections</strong> — pricing changes constantly; if a number on the site is stale, tell us and we'll re-verify it.</li>
+          <li><strong>Review requests</strong> — tools you're evaluating that we haven't covered yet.</li>
+          <li><strong>Your experience with a tool</strong> — real usage reports (good or bad) inform our quarterly score updates.</li>
+        </ul>
+        <p class="contact-note">Vendors: we don't accept payment for reviews or scores. See our <a href="/methodology">methodology</a> before writing.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+.page-hero { background: var(--navy); padding: 64px 0; }
+.page-hero .tag { margin-bottom: 16px; display: inline-block; }
+.page-hero h1 { color: var(--white); margin-bottom: 16px; }
+.page-hero p { color: rgba(255,255,255,0.75); font-size: 1.125rem; max-width: 680px; margin: 0; }
+.contact-card { padding: 32px; }
+.contact-card h2 { margin-bottom: 12px; }
+.contact-email { font-family: var(--font-mono); font-size: 1.125rem; color: var(--navy); text-decoration: underline; }
+.contact-note { color: var(--gray-600); margin: 16px 0 8px; }
+.contact-card ul { padding-left: 24px; }
+.contact-card li { margin-bottom: 10px; color: var(--gray-600); line-height: 1.7; }
+.contact-card a { color: var(--navy); }
+</style>

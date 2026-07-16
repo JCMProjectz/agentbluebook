@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from './ArticleCard.astro';
+import type { Article } from '../lib/site';
+
+interface Props {
+  title: string;
+  description: string;
+  heroTitle: string;
+  heroText: string;
+  articles: Article[];
+  emptyMessage: string;
+}
+
+const { title, description, heroTitle, heroText, articles, emptyMessage } = Astro.props;
+
+const listSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: heroTitle,
+  numberOfItems: articles.length,
+  itemListElement: articles.map((a, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: `https://agentbluebook.com/${a.slug}`,
+    name: a.data.title,
+  })),
+};
+---
+
+<Base title={title} description={description} schema={listSchema}>
+  <section class="listing-hero">
+    <div class="container">
+      <h1>{heroTitle}</h1>
+      <p>{heroText}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      {articles.length > 0 ? (
+        <div class="listing-grid">
+          {articles.map(article => <ArticleCard article={article} />)}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <div class="empty-icon">📝</div>
+          <h2>Coming soon</h2>
+          <p>{emptyMessage}</p>
+          <a href="/reviews" class="btn btn-navy">Browse Published Reviews →</a>
+        </div>
+      )}
+    </div>
+  </section>
+</Base>
+
+<style>
+.listing-hero { background: var(--navy); padding: 56px 0; }
+.listing-hero h1 { color: var(--white); margin-bottom: 12px; }
+.listing-hero p { color: rgba(255,255,255,0.75); font-size: 1.0625rem; max-width: 640px; margin: 0; }
+.listing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.empty-state { text-align: center; padding: 64px 24px; background: var(--off-white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); max-width: 560px; margin: 0 auto; }
+.empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.empty-state h2 { margin-bottom: 8px; }
+.empty-state p { color: var(--gray-600); margin-bottom: 24px; }
+@media (max-width: 900px) { .listing-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .listing-grid { grid-template-columns: 1fr; } }
+</style>

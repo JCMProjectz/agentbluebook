@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import { CONTACT_EMAIL } from '../lib/site';
+
+const lastUpdated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base
+  title="Terms of Use"
+  description="Terms of use for AgentBluebook — what our reviews are (independent editorial opinion) and what they aren't (professional advice)."
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="tag tag-gold">Legal</span>
+      <h1>Terms of Use</h1>
+      <p>Last updated: {lastUpdated}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="content-width page-body">
+      <h2>What this site is</h2>
+      <p>AgentBluebook publishes independent editorial reviews, comparisons, and opinions about software for real estate professionals. By using the site you accept these terms.</p>
+
+      <h2>Reviews are opinion, not advice</h2>
+      <p>Scores and verdicts are our editorial opinion based on the research process described in our <a href="/methodology">methodology</a>. They are not business, legal, or financial advice. Evaluate any tool against your own requirements before buying — most tools we review offer free trials for exactly that reason.</p>
+
+      <h2>Pricing accuracy</h2>
+      <p>We verify pricing at the time each article is published or updated, and each article shows its dates. Vendors change pricing without notice; always confirm current pricing on the vendor's own site before purchasing. We are not liable for decisions made on the basis of pricing that has since changed.</p>
+
+      <h2>Affiliate relationships</h2>
+      <p>Some links are affiliate links, as described in our <a href="/affiliate-disclosure">affiliate disclosure</a>.</p>
+
+      <h2>Intellectual property</h2>
+      <p>Site content is © AgentBluebook. You may quote brief excerpts with attribution and a link. Republishing full articles is not permitted. Product names and logos referenced belong to their respective owners; their use here is nominative.</p>
+
+      <h2>No warranty</h2>
+      <p>The site is provided "as is" without warranties of any kind. We do our best to keep information accurate and current, but we don't guarantee completeness or fitness for a particular purpose.</p>
+
+      <h2>Contact</h2>
+      <p>Questions about these terms: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+.page-hero { background: var(--navy); padding: 64px 0; }
+.page-hero .tag { margin-bottom: 16px; display: inline-block; }
+.page-hero h1 { color: var(--white); margin-bottom: 16px; }
+.page-hero p { color: rgba(255,255,255,0.75); font-size: 1rem; margin: 0; }
+.page-body h2 { margin: 40px 0 16px; }
+.page-body p { color: var(--gray-600); line-height: 1.7; margin-bottom: 1.25rem; }
+.page-body a { color: var(--navy); text-decoration: underline; }
+</style>
