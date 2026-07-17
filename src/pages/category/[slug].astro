@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
+import ToolPromo from '../../components/ToolPromo.astro';
 import { CATEGORIES, getPublishedArticles, articlesInCategory } from '../../lib/site';
 
 export async function getStaticPaths() {
@@ -64,6 +65,7 @@ const listSchema = {
           <a href="/reviews" class="btn btn-navy">Browse Published Reviews →</a>
         </div>
       )}
+      <ToolPromo />
     </div>
   </section>
 </Base>

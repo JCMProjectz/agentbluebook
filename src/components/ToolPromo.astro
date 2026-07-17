@@ -1,0 +1,33 @@
+---
+// Reusable promo block for the Market Update Generator — used on review and
+// category pages. Links only; no build/deploy coupling with the tool.
+---
+
+<aside class="tool-promo">
+  <div class="tp-text">
+    <span class="tag tag-gold">AgentBluebook Tools</span>
+    <h3>Your monthly market update, written in 30 seconds</h3>
+    <p>
+      Enter your farm area and this month&apos;s stats — get a client-ready email
+      newsletter, social captions, and a blog post. Narrative first, never a stat dump.
+    </p>
+  </div>
+  <div class="tp-cta">
+    <a href="https://tool.agentbluebook.com" class="btn btn-primary">Try It Free for 7 Days →</a>
+    <span class="tp-note">$29/mo after trial · cancel anytime</span>
+  </div>
+</aside>
+
+<style>
+.tool-promo {
+  background: var(--navy); border-radius: var(--radius-lg);
+  padding: 28px; margin: 40px 0;
+  display: flex; justify-content: space-between; align-items: center; gap: 24px;
+  flex-wrap: wrap;
+}
+.tp-text { max-width: 520px; }
+.tp-text h3 { color: var(--white); margin: 10px 0 8px; font-size: 1.2rem; }
+.tp-text p { color: rgba(255,255,255,0.75); font-size: 0.9rem; margin: 0; }
+.tp-cta { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.tp-note { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+</style>

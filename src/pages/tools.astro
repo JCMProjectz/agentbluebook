@@ -1,0 +1,86 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Tools for Real Estate Agents — Market Update Generator"
+  description="AgentBluebook Tools: turn your farm-area stats into a client-ready email newsletter, social captions, and a blog post in one pass. 7-day free trial."
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="tag tag-gold">AgentBluebook Tools</span>
+      <h1>The Market Update Generator</h1>
+      <p>
+        Every agent knows they should send a monthly market update. Almost nobody
+        enjoys writing one. Enter your farm area and this month&apos;s stats — get back
+        three ready-to-send formats in about 30 seconds.
+      </p>
+      <div class="hero-actions">
+        <a href="https://tool.agentbluebook.com" class="btn btn-primary btn-lg">
+          Start Your 7-Day Free Trial →
+        </a>
+      </div>
+      <p class="hero-sub-note">$29/month after the trial. Cancel anytime.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="tools-grid">
+        <div class="card tool-feature">
+          <div class="tf-icon">📧</div>
+          <h3>Client-ready email newsletter</h3>
+          <p>A narrative your clients will actually read — with a clear takeaway for buyers and sellers, not another stat dump.</p>
+        </div>
+        <div class="card tool-feature">
+          <div class="tf-icon">📱</div>
+          <h3>Social captions</h3>
+          <p>2–3 ready-to-post captions with local hashtags, sized for Instagram and Facebook.</p>
+        </div>
+        <div class="card tool-feature">
+          <div class="tf-icon">📝</div>
+          <h3>Blog post version</h3>
+          <p>A short SEO-friendly post for your website, generated from the same numbers.</p>
+        </div>
+        <div class="card tool-feature">
+          <div class="tf-icon">🎯</div>
+          <h3>Your numbers only</h3>
+          <p>It never invents statistics. Enter your MLS numbers — or start from clearly-labeled metro estimates and adjust.</p>
+        </div>
+        <div class="card tool-feature">
+          <div class="tf-icon">🗂️</div>
+          <h3>History built in</h3>
+          <p>Every update is saved. Next month starts from last month&apos;s numbers, not a blank form.</p>
+        </div>
+        <div class="card tool-feature">
+          <div class="tf-icon">🎨</div>
+          <h3>Three tones</h3>
+          <p>Professional, friendly, or luxury — matched to your farm and your brand.</p>
+        </div>
+      </div>
+
+      <div class="tools-cta">
+        <a href="https://tool.agentbluebook.com" class="btn btn-navy btn-lg">
+          Try the Market Update Generator →
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+.page-hero { background: var(--navy); padding: 64px 0; }
+.page-hero .tag { margin-bottom: 16px; display: inline-block; }
+.page-hero h1 { color: var(--white); margin-bottom: 16px; }
+.page-hero p { color: rgba(255,255,255,0.75); font-size: 1.125rem; max-width: 680px; margin: 0 0 24px; }
+.hero-actions { margin-bottom: 12px; }
+.hero-sub-note { font-size: 0.8125rem !important; color: rgba(255,255,255,0.5) !important; margin: 0 !important; }
+.tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.tool-feature { padding: 24px; }
+.tf-icon { font-size: 1.7rem; margin-bottom: 10px; }
+.tool-feature h3 { font-size: 1.05rem; margin-bottom: 8px; }
+.tool-feature p { color: var(--gray-600); font-size: 0.9rem; margin: 0; }
+.tools-cta { text-align: center; margin-top: 40px; }
+@media (max-width: 900px) { .tools-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .tools-grid { grid-template-columns: 1fr; } }
+</style>

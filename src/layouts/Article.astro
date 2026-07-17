@@ -1,5 +1,6 @@
 ---
 import Base from './Base.astro';
+import ToolPromo from '../components/ToolPromo.astro';
 import { categorySlug } from '../lib/site';
 
 interface Props {
@@ -169,6 +170,8 @@ const formattedUpdate = updatedAt ? new Date(updatedAt).toLocaleDateString('en-U
             </a>
           </div>
         )}
+
+        <ToolPromo />
       </div>
 
       <!-- Sidebar -->
