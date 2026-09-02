@@ -1,0 +1,176 @@
+{
+  "name": "MarkSentry — Nightly Monitor",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Schedule 3:30am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "cronExpression", "expression": "30 3 * * *" }
+          ]
+        }
+      },
+      "notes": "Runs nightly; the 'Filter Due Subscribers' node decides who actually gets scanned (new subscribers → baseline scan tonight; existing → every 7 days)."
+    },
+    {
+      "id": "2",
+      "name": "List Subscribers",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [460, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.github.com/repos/JCMProjectz/agentbluebook/contents/ventures/marksentry/data/subscribers",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer {{$env.GITHUB_TOKEN}}" },
+            { "name": "Accept", "value": "application/vnd.github.v3+json" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3",
+      "name": "Fetch Subscriber File",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [680, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "={{$json.download_url}}",
+        "options": {}
+      },
+      "notes": "The directory listing fans out one item per subscriber file; this fetches each file's JSON content. Keep each subscriber's GitHub 'sha' from the listing — needed to update the file later."
+    },
+    {
+      "id": "4",
+      "name": "Filter Due Subscribers",
+      "type": "n8n-nodes-base.code",
+      "position": [900, 300],
+      "parameters": {
+        "jsCode": "const listing = $('List Subscribers').all().flatMap(i => Array.isArray(i.json) ? i.json : [i.json]);\nconst shaByName = Object.fromEntries(listing.map(f => [f.name, f.sha]));\nconst out = [];\nconst now = Date.now();\nconst WEEK = 7 * 24 * 60 * 60 * 1000;\nfor (const item of $('Fetch Subscriber File').all()) {\n  const sub = item.json;\n  if (sub.status !== 'active') continue;\n  const isBaseline = !sub.last_scanned;\n  const due = isBaseline || (now - Date.parse(sub.last_scanned)) >= WEEK;\n  if (!due) continue;\n  const stop = new Set(['the','a','an','llc','inc','co','company','of','and']);\n  const words = String(sub.business_name).toLowerCase().replace(/[^a-z0-9 ]/g, '').split(/\\s+/).filter(w => w && !stop.has(w));\n  out.push({ json: { ...sub, isBaseline, searchTerm: words[0] || sub.business_name.toLowerCase(), gh_sha: shaByName[sub.id + '.json'] } });\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "5",
+      "name": "USPTO Trademark Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1120, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "https://markerapi.com/api/v2/trademarks/trademark/{{$json.searchTerm}}/status/active/start/1/username/{{$env.MARKERAPI_USERNAME}}/password/{{$env.MARKERAPI_PASSWORD}}",
+        "options": {
+          "response": { "response": { "neverError": true } }
+        },
+        "notes": "Same provider note as the free-check workflow — swap URL per your chosen trademark search API. See README → 'Search provider'."
+      }
+    },
+    {
+      "id": "6",
+      "name": "Claude Compare & Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1340, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "{{$env.ANTHROPIC_API_KEY}}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "model": "claude-opus-5",
+          "max_tokens": 16000,
+          "system": "You are the monitoring engine for MarkSentry, an automated trademark watch service. You compare fresh USPTO search results against a subscriber's previously-known marks snapshot and decide whether anything NEW and RELEVANT appeared. You are not a lawyer and never give legal advice. Be honest: most weeks nothing material happens, and saying 'all clear' is a valid, valuable outcome. Do not manufacture urgency.",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Subscriber's watched mark: {{$('Filter Due Subscribers').item.json.business_name}}\nTheir goods/services: {{$('Filter Due Subscribers').item.json.industry}}\nIs this the FIRST (baseline) scan: {{$('Filter Due Subscribers').item.json.isBaseline}}\n\nPreviously known marks snapshot (JSON array of serial numbers / mark names already reported):\n{{JSON.stringify($('Filter Due Subscribers').item.json.known_marks_snapshot)}}\n\nFresh USPTO search results (raw JSON from the search API):\n{{JSON.stringify($json)}}\n\nReturn ONLY a JSON object (no markdown fences) with exactly these keys:\n{\n  \"send_email\": boolean,            // true if baseline scan, or if a NEW relevant mark appeared vs the snapshot\n  \"alert_level\": \"clear\"|\"info\"|\"attention\",\n  \"new_snapshot\": [array of {serial_or_id, mark} for ALL relevant marks now known — this replaces the stored snapshot],\n  \"email_subject\": string,          // e.g. '🛡️ All clear' or '⚠️ New filing similar to <name>'\n  \"email_html\": string              // complete self-contained HTML email body, inline styles, max-width 600px. For baseline: summarize existing similar marks and what they mean. For alerts: what was filed, similarity, overlap with their goods/services, honest 'what this means', sensible next steps including consulting a trademark attorney if material. Always end with: 'MarkSentry is not a law firm and this report is not legal advice. It is an automated analysis of public USPTO records for informational purposes only.'\n}\nIf send_email is false, email_subject and email_html may be empty strings."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "7",
+      "name": "Parse Verdict",
+      "type": "n8n-nodes-base.code",
+      "position": [1560, 300],
+      "parameters": {
+        "jsCode": "const resp = $input.item.json;\nif (resp.stop_reason === 'refusal') throw new Error('Model declined');\nconst text = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('').replace(/^```json\\n?|```$/g, '').trim();\nconst verdict = JSON.parse(text);\nconst sub = $('Filter Due Subscribers').item.json;\nconst updated = {\n  id: sub.id, email: sub.email, business_name: sub.business_name, industry: sub.industry,\n  stripe_customer: sub.stripe_customer, stripe_session: sub.stripe_session, status: sub.status,\n  created_at: sub.created_at,\n  last_scanned: new Date().toISOString(),\n  known_marks_snapshot: verdict.new_snapshot || sub.known_marks_snapshot\n};\nreturn [{ json: { verdict, subscriber: updated, gh_sha: sub.gh_sha } }];"
+      }
+    },
+    {
+      "id": "8",
+      "name": "Update Subscriber Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1780, 300],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/JCMProjectz/agentbluebook/contents/ventures/marksentry/data/subscribers/{{$json.subscriber.id}}.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer {{$env.GITHUB_TOKEN}}" },
+            { "name": "Accept", "value": "application/vnd.github.v3+json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "message": "MarkSentry scan: {{$json.subscriber.business_name}} ({{$json.verdict.alert_level}})",
+          "content": "={{Buffer.from(JSON.stringify($json.subscriber, null, 2)).toString('base64')}}",
+          "sha": "={{$json.gh_sha}}"
+        }
+      }
+    },
+    {
+      "id": "9",
+      "name": "Should Email?",
+      "type": "n8n-nodes-base.if",
+      "position": [2000, 300],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{$json.verdict.send_email}}", "value2": true }
+          ]
+        }
+      }
+    },
+    {
+      "id": "10",
+      "name": "Send Alert Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [2220, 200],
+      "parameters": {
+        "fromEmail": "reports@YOUR-DOMAIN.com",
+        "toEmail": "={{$json.subscriber.email}}",
+        "subject": "={{$json.verdict.email_subject}}",
+        "emailFormat": "html",
+        "html": "={{$json.verdict.email_html}}"
+      }
+    }
+  ],
+  "connections": {
+    "Schedule 3:30am": { "main": [[{ "node": "List Subscribers", "type": "main", "index": 0 }]] },
+    "List Subscribers": { "main": [[{ "node": "Fetch Subscriber File", "type": "main", "index": 0 }]] },
+    "Fetch Subscriber File": { "main": [[{ "node": "Filter Due Subscribers", "type": "main", "index": 0 }]] },
+    "Filter Due Subscribers": { "main": [[{ "node": "USPTO Trademark Search", "type": "main", "index": 0 }]] },
+    "USPTO Trademark Search": { "main": [[{ "node": "Claude Compare & Report", "type": "main", "index": 0 }]] },
+    "Claude Compare & Report": { "main": [[{ "node": "Parse Verdict", "type": "main", "index": 0 }]] },
+    "Parse Verdict": { "main": [[{ "node": "Update Subscriber Record", "type": "main", "index": 0 }]] },
+    "Update Subscriber Record": { "main": [[{ "node": "Should Email?", "type": "main", "index": 0 }]] },
+    "Should Email?": { "main": [[{ "node": "Send Alert Email", "type": "main", "index": 0 }]], "false": [[]] }
+  }
+}

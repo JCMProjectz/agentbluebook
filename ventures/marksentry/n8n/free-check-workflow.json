@@ -1,0 +1,131 @@
+{
+  "name": "MarkSentry — Free Conflict Check",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Free Check Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [240, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "marksentry-free-check",
+        "responseMode": "onReceived",
+        "responseData": "{\"ok\":true}"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "position": [460, 300],
+      "parameters": {
+        "jsCode": "const b = $input.first().json.body || $input.first().json;\nconst name = String(b.business_name || '').trim().slice(0, 120);\nconst industry = String(b.industry || '').trim().slice(0, 160);\nconst email = String(b.email || '').trim().slice(0, 160);\nif (!name || !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)) {\n  throw new Error('Invalid submission');\n}\n// First significant word is usually the distinctive element worth searching\nconst stop = new Set(['the','a','an','llc','inc','co','company','of','and']);\nconst words = name.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(/\\s+/).filter(w => w && !stop.has(w));\nconst searchTerm = words[0] || name.toLowerCase();\nreturn [{ json: { business_name: name, industry, email, searchTerm, ts: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "3",
+      "name": "USPTO Trademark Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [680, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "https://markerapi.com/api/v2/trademarks/trademark/{{$json.searchTerm}}/status/active/start/1/username/{{$env.MARKERAPI_USERNAME}}/password/{{$env.MARKERAPI_PASSWORD}}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "notes": "Default provider: markerapi.com (free tier). Swap this node's URL for your chosen trademark search API — USPTO Open Data / TSDR (key from developer.uspto.gov), a RapidAPI trademark search, or an Apify actor. See ventures/marksentry/README.md → 'Search provider'."
+      }
+    },
+    {
+      "id": "4",
+      "name": "Claude Risk Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [900, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "{{$env.ANTHROPIC_API_KEY}}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "model": "claude-opus-5",
+          "max_tokens": 16000,
+          "system": "You are the analysis engine for MarkSentry, an automated trademark monitoring service. You write clear, plain-English trademark conflict reports for small business owners with zero legal background. You are NOT a lawyer and never give legal advice — you inform, assess similarity honestly (do not inflate risk to scare people, do not minimize real conflicts), and suggest sensible next steps, including consulting a licensed trademark attorney when a conflict looks material. Every report ends with the standard disclaimer.",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Write a free trademark conflict check report as a complete self-contained HTML email body (inline styles only, max width 600px, clean and readable).\n\nBusiness name being checked: {{$('Validate Input').first().json.business_name}}\nWhat they sell: {{$('Validate Input').first().json.industry}}\n\nRaw USPTO search results (JSON from a trademark search API; may be empty or contain unrelated marks):\n{{JSON.stringify($json)}}\n\nReport structure:\n1. A one-line verdict up top: LOW / MODERATE / ELEVATED conflict signal, with one sentence of why.\n2. Up to 5 most relevant existing marks found, each with: mark name, status if available, how similar it is to the checked name (visually/phonetically/conceptually), and whether the goods/services likely overlap with what they sell. Ignore obviously irrelevant results.\n3. 'What this means for you' — 3-4 sentences, plain English, honest.\n4. 'Sensible next steps' — bullet list tailored to the verdict.\n5. A short paragraph noting that this was a one-time snapshot, new applications are filed every day, and MarkSentry monitors weekly for $89/yr, with a link: STRIPE_PAYMENT_LINK_HERE\n6. The disclaimer: 'MarkSentry is not a law firm and this report is not legal advice. It is an automated analysis of public USPTO records for informational purposes only. Consult a licensed trademark attorney for advice about your situation.'\n\nReturn ONLY the HTML, no markdown fences, no commentary."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "5",
+      "name": "Extract Report HTML",
+      "type": "n8n-nodes-base.code",
+      "position": [1120, 300],
+      "parameters": {
+        "jsCode": "const resp = $input.first().json;\nif (resp.stop_reason === 'refusal') {\n  throw new Error('Model declined to produce report');\n}\nconst html = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('').replace(/^```html\\n?|```$/g, '').trim();\nif (!html) throw new Error('Empty report');\nconst lead = $('Validate Input').first().json;\nreturn [{ json: { html, email: lead.email, business_name: lead.business_name, industry: lead.industry, ts: lead.ts } }];"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Email Report",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [1340, 300],
+      "parameters": {
+        "fromEmail": "reports@YOUR-DOMAIN.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "Your free trademark check: {{$json.business_name}}",
+        "emailFormat": "html",
+        "html": "={{$json.html}}"
+      }
+    },
+    {
+      "id": "7",
+      "name": "Log Lead to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1560, 300],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/JCMProjectz/agentbluebook/contents/ventures/marksentry/data/leads/{{$json.ts.replace(/[:.]/g, '-')}}.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer {{$env.GITHUB_TOKEN}}" },
+            { "name": "Accept", "value": "application/vnd.github.v3+json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "message": "MarkSentry lead: {{$json.business_name}}",
+          "content": "={{Buffer.from(JSON.stringify({ email: $json.email, business_name: $json.business_name, industry: $json.industry, ts: $json.ts }, null, 2)).toString('base64')}}"
+        },
+        "notes": "One file per lead avoids read-modify-write races. Nurture sequence reads this folder. Move to a proper DB/Sheet when volume justifies it."
+      }
+    }
+  ],
+  "connections": {
+    "Free Check Webhook": { "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]] },
+    "Validate Input": { "main": [[{ "node": "USPTO Trademark Search", "type": "main", "index": 0 }]] },
+    "USPTO Trademark Search": { "main": [[{ "node": "Claude Risk Analysis", "type": "main", "index": 0 }]] },
+    "Claude Risk Analysis": { "main": [[{ "node": "Extract Report HTML", "type": "main", "index": 0 }]] },
+    "Extract Report HTML": { "main": [[{ "node": "Email Report", "type": "main", "index": 0 }]] },
+    "Email Report": { "main": [[{ "node": "Log Lead to GitHub", "type": "main", "index": 0 }]] }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "id": "cus_EXAMPLE123",
+  "email": "owner@example.com",
+  "business_name": "Copper Kettle Coffee",
+  "industry": "coffee shop and roasted beans",
+  "stripe_customer": "cus_EXAMPLE123",
+  "stripe_session": "cs_test_EXAMPLE",
+  "status": "example",
+  "created_at": "2026-09-02T00:00:00.000Z",
+  "last_scanned": null,
+  "known_marks_snapshot": []
+}

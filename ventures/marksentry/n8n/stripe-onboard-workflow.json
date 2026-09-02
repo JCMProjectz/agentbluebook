@@ -1,0 +1,70 @@
+{
+  "name": "MarkSentry — Stripe Onboarding",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Stripe Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [240, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "marksentry-stripe",
+        "responseMode": "onReceived",
+        "responseData": "{\"received\":true}"
+      },
+      "notes": "Point a Stripe webhook endpoint at this URL for the event checkout.session.completed. For production, verify the Stripe-Signature header (add a Code node using STRIPE_WEBHOOK_SECRET) before trusting the payload."
+    },
+    {
+      "id": "2",
+      "name": "Extract Subscriber",
+      "type": "n8n-nodes-base.code",
+      "position": [460, 300],
+      "parameters": {
+        "jsCode": "const evt = $input.first().json.body || $input.first().json;\nif (evt.type !== 'checkout.session.completed') {\n  return []; // ignore other events\n}\nconst s = evt.data.object;\nconst fields = {};\nfor (const f of (s.custom_fields || [])) {\n  fields[f.key] = (f.text && f.text.value) || (f.dropdown && f.dropdown.value) || '';\n}\nconst businessName = fields.business_name || s.metadata?.business_name || '';\nconst industry = fields.industry || s.metadata?.industry || '';\nconst email = s.customer_details?.email || s.customer_email;\nif (!email) throw new Error('No customer email on session');\nconst id = (s.customer || s.id).toString().replace(/[^a-zA-Z0-9_-]/g, '');\nreturn [{ json: {\n  id,\n  email,\n  business_name: businessName,\n  industry,\n  stripe_customer: s.customer,\n  stripe_session: s.id,\n  status: 'active',\n  created_at: new Date().toISOString(),\n  last_scanned: null,\n  known_marks_snapshot: []\n} }];"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Create Subscriber Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [680, 300],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/JCMProjectz/agentbluebook/contents/ventures/marksentry/data/subscribers/{{$json.id}}.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer {{$env.GITHUB_TOKEN}}" },
+            { "name": "Accept", "value": "application/vnd.github.v3+json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "message": "MarkSentry new subscriber: {{$json.business_name}}",
+          "content": "={{Buffer.from(JSON.stringify($json, null, 2)).toString('base64')}}"
+        }
+      }
+    },
+    {
+      "id": "4",
+      "name": "Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [900, 300],
+      "parameters": {
+        "fromEmail": "reports@YOUR-DOMAIN.com",
+        "toEmail": "={{$('Extract Subscriber').first().json.email}}",
+        "subject": "🛡️ MarkSentry is now watching \"{{$('Extract Subscriber').first().json.business_name}}\"",
+        "emailFormat": "html",
+        "html": "=<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;color:#101828;line-height:1.6\"><h2 style=\"letter-spacing:-0.02em\">You're protected.</h2><p>MarkSentry is now monitoring USPTO trademark filings for marks similar to:</p><p style=\"font-size:20px;font-weight:bold;background:#f6f8fb;border-radius:8px;padding:14px 18px\">{{$('Extract Subscriber').first().json.business_name}}</p><p><strong>What happens next:</strong></p><ol><li>Your baseline scan runs tonight — your first report covers similar marks that already exist, within 24 hours.</li><li>After that, we scan new filings weekly and email you only when something deserves attention.</li><li>Once a month you'll get an \"all clear\" summary so you know the watch is running.</li></ol><p>If the business name or industry above is wrong, just reply to this email and we'll fix your watch profile.</p><p style=\"color:#667085;font-size:12px;margin-top:28px\">MarkSentry is not a law firm and does not provide legal advice. Reports are automated analyses of public USPTO records for informational purposes only.</p></div>"
+      }
+    }
+  ],
+  "connections": {
+    "Stripe Webhook": { "main": [[{ "node": "Extract Subscriber", "type": "main", "index": 0 }]] },
+    "Extract Subscriber": { "main": [[{ "node": "Create Subscriber Record", "type": "main", "index": 0 }]] },
+    "Create Subscriber Record": { "main": [[{ "node": "Welcome Email", "type": "main", "index": 0 }]] }
+  }
+}
