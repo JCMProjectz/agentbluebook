@@ -8,11 +8,9 @@ const root = dirname(fileURLToPath(import.meta.url));
 const f = (p) => readFileSync(join(root, 'fonts', p)).toString('base64');
 
 const tokens = {
-  __CG500__: f('cormorant-garamond-latin-500-normal.woff2'),
-  __CG600__: f('cormorant-garamond-latin-600-normal.woff2'),
-  __CG500I__: f('cormorant-garamond-latin-500-italic.woff2'),
-  __K400__: f('karla-latin-400-normal.woff2'),
-  __K700__: f('karla-latin-700-normal.woff2'),
+  __P400__: f('poppins-latin-400-normal.woff2'),
+  __P500__: f('poppins-latin-500-normal.woff2'),
+  __P600__: f('poppins-latin-600-normal.woff2'),
 };
 
 for (const name of readdirSync(join(root, 'src'))) {

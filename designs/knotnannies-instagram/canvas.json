@@ -1,12 +1,10 @@
 {
   "artboards": [
     { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1080, "h": 1350, "title": "Feed card · 4:5" },
-    { "file": "Square.dc.html", "x": 1180, "y": 0, "w": 1080, "h": 1080, "title": "Square card · 1:1" },
-    { "file": "DustyBlueClassic.dc.html", "x": 0, "y": 1490, "w": 1080, "h": 1350, "title": "Alt direction · Dusty Blue Classic" },
-    { "file": "BlushModern.dc.html", "x": 1180, "y": 1490, "w": 1080, "h": 1350, "title": "Alt direction · Warm Blush Modern" }
+    { "file": "Square.dc.html", "x": 1180, "y": 0, "w": 1080, "h": 1080, "title": "Square card · 1:1" }
   ],
   "annotations": [
-    { "id": "brand-note", "x": -390, "y": 0, "w": 340, "text": "A note on colors: I couldn't reach knotnannies.com or the Instagram from this session (network was blocked), so the sage palette and fonts are a best-guess wedding aesthetic rather than lifted from your site.\n\n- The Brand color chip above each card swaps the whole palette in one click\n- Click any text to edit it - add your phone or email in the bottom band\n- Two alternate style directions are sketched in the row below\n\nWhen it looks right: Export PNG from the toolbar on the card you want to post." }
+    { "id": "brand-note", "x": -430, "y": 0, "w": 340, "text": "Now matched to your real brand from the screenshots you sent: your actual logo (cropped from the site header), the blush + cream palette sampled from knotnannies.com, and Poppins to match the site's type.\n\nContact info comes from your business-card post: 616-329-1170 / info@knotnannies.com. Double-check the service-area wording - it's the one thing not shown on the site.\n\nClick any text to edit. When it looks right: Export PNG from the toolbar on the card you want. The square card is there because Instagram crops every carousel slide to the first image's ratio." }
   ],
   "launch": { "view": "canvas" }
 }
