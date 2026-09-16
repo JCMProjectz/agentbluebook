@@ -1,0 +1,12 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1080, "h": 1350, "title": "Feed card · 4:5" },
+    { "file": "Square.dc.html", "x": 1180, "y": 0, "w": 1080, "h": 1080, "title": "Square card · 1:1" },
+    { "file": "DustyBlueClassic.dc.html", "x": 0, "y": 1490, "w": 1080, "h": 1350, "title": "Alt direction · Dusty Blue Classic" },
+    { "file": "BlushModern.dc.html", "x": 1180, "y": 1490, "w": 1080, "h": 1350, "title": "Alt direction · Warm Blush Modern" }
+  ],
+  "annotations": [
+    { "id": "brand-note", "x": -390, "y": 0, "w": 340, "text": "A note on colors: I couldn't reach knotnannies.com or the Instagram from this session (network was blocked), so the sage palette and fonts are a best-guess wedding aesthetic rather than lifted from your site.\n\n- The Brand color chip above each card swaps the whole palette in one click\n- Click any text to edit it - add your phone or email in the bottom band\n- Two alternate style directions are sketched in the row below\n\nWhen it looks right: Export PNG from the toolbar on the card you want to post." }
+  ],
+  "launch": { "view": "canvas" }
+}
