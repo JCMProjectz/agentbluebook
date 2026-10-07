@@ -1,0 +1,33 @@
+{
+ "updatedAt": "2026-10-07T19:40:30Z",
+ "channelId": "UCY7MUpeiV56M4M5zZPNG69Q",
+ "phase": "live",
+ "live": [
+  {
+   "videoId": "EXAMPLE_ID_2",
+   "title": "People v. Doe — Sentencing",
+   "startedAt": "2026-10-07T19:37:02Z",
+   "embeddable": true
+  }
+ ],
+ "today": [
+  {
+   "videoId": "EXAMPLE_ID_1",
+   "title": "People v. Brown — Arraignment",
+   "startedAt": "2026-10-07T18:14:40Z",
+   "endedAt": "2026-10-07T18:28:11Z"
+  },
+  {
+   "videoId": "EXAMPLE_ID_2",
+   "title": "People v. Doe — Sentencing",
+   "startedAt": "2026-10-07T19:37:02Z",
+   "endedAt": null
+  }
+ ],
+ "_meta": {
+  "day": "2026-10-07",
+  "lastCheck": "2026-10-07T19:40:30Z",
+  "lastSearch": "2026-10-07T19:30:00Z",
+  "notifiedDay": "2026-10-07"
+ }
+}

@@ -1,0 +1,178 @@
+/* Court Live — The Shiawassee Current
+   Scoped under .cl so it can drop into the existing /court-live page template. */
+
+.cl {
+  --cl-board: #101b17;
+  --cl-board-2: #15241e;
+  --cl-board-3: #1b2e26;
+  --cl-green: #3fa16c;
+  --cl-green-text: #4fb07c;
+  --cl-paper: #fbfbf9;
+  --cl-muted: rgba(251, 251, 249, .72);
+  --cl-faint: rgba(251, 251, 249, .48);
+  --cl-rule: rgba(251, 251, 249, .12);
+  --cl-live: #e5484d;
+
+  font-family: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--cl-paper);
+  background: var(--cl-board);
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 16px 40px;
+  -webkit-font-smoothing: antialiased;
+}
+.cl *, .cl *::before, .cl *::after { box-sizing: border-box; }
+/* :where() keeps the reset at zero extra specificity so component margins below win. */
+.cl :where(h1, h2, h3, p, ol, dl, dd) { margin: 0; }
+
+/* ---------- header ---------- */
+.cl-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 24px; margin-bottom: 20px; }
+.cl-kicker {
+  display: inline-block; background: var(--cl-green); color: #f1fff1;
+  font-weight: 800; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  padding: 6px 12px 5px; border-radius: 999px;
+}
+.cl-title { margin-top: 12px; font-weight: 800; font-size: clamp(26px, 4.4vw, 40px); line-height: 1.05; letter-spacing: -.015em; }
+.cl-sub { margin-top: 8px; color: var(--cl-muted); font-size: 15px; line-height: 1.4; }
+
+.cl-status {
+  display: inline-flex; align-items: center; gap: 10px; flex: none;
+  padding: 9px 16px; border-radius: 999px; border: 1.5px solid var(--cl-rule);
+  font-weight: 800; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--cl-muted);
+}
+.cl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cl-faint); }
+.cl[data-state="live"] .cl-status { color: var(--cl-paper); border-color: rgba(229, 72, 77, .55); background: rgba(229, 72, 77, .12); }
+.cl[data-state="live"] .cl-dot { background: var(--cl-live); animation: cl-pulse 1.6s ease-out infinite; }
+.cl[data-state="recess"] .cl-dot { background: var(--cl-green); }
+.cl[data-state="noembed"] .cl-dot { background: var(--cl-live); }
+@keyframes cl-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(229, 72, 77, .6); }
+  70% { box-shadow: 0 0 0 10px rgba(229, 72, 77, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 72, 77, 0); }
+}
+
+/* ---------- stage (player + state overlays) ---------- */
+.cl-stage {
+  position: relative; aspect-ratio: 16 / 9; width: 100%;
+  background: #0a120f; border-radius: 18px; overflow: hidden;
+  border: 1.5px solid var(--cl-rule);
+}
+.cl[data-state="live"] .cl-stage { border-color: rgba(229, 72, 77, .45); }
+.cl-player, .cl-stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+.cl-overlay {
+  position: absolute; inset: 0; display: none;
+  flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  gap: 10px; padding: 24px;
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(63, 161, 108, .14), transparent 60%),
+    var(--cl-board-2);
+}
+.cl-overlay h2 { font-weight: 800; font-size: clamp(20px, 3.2vw, 30px); letter-spacing: -.01em; }
+.cl-overlay p { color: var(--cl-muted); font-size: clamp(14px, 1.8vw, 17px); line-height: 1.45; max-width: 46ch; }
+.cl-overlay .cl-last { color: var(--cl-faint); font-size: 14px; }
+
+.cl[data-state="loading"] .cl-overlay--loading,
+.cl[data-state="recess"] .cl-overlay--recess,
+.cl[data-state="closed"] .cl-overlay--closed,
+.cl[data-state="noembed"] .cl-overlay--noembed { display: flex; }
+
+.cl-spinner {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 3px solid var(--cl-rule); border-top-color: var(--cl-green);
+  animation: cl-spin .9s linear infinite;
+}
+@keyframes cl-spin { to { transform: rotate(360deg); } }
+
+.cl-wait { position: relative; width: 56px; height: 56px; margin-bottom: 6px; }
+.cl-wait::before, .cl-wait::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid var(--cl-green); opacity: 0; animation: cl-ring 2.4s ease-out infinite;
+}
+.cl-wait::after { animation-delay: 1.2s; }
+.cl-wait i { position: absolute; inset: 21px; border-radius: 50%; background: var(--cl-green); }
+@keyframes cl-ring { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(1.25); opacity: 0; } }
+
+.cl-gavel { width: 48px; height: 48px; margin-bottom: 4px; color: var(--cl-green); }
+
+.cl-unmute {
+  position: absolute; left: 14px; bottom: 14px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 8px;
+  font: 700 14px/1 'Figtree', system-ui, sans-serif; color: var(--cl-board);
+  background: var(--cl-paper); border: 0; border-radius: 999px; padding: 10px 16px; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+}
+.cl-unmute[hidden], .cl:not([data-state="live"]) .cl-unmute { display: none; }
+
+/* ---------- buttons ---------- */
+.cl-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: 800 15px/1 'Figtree', system-ui, sans-serif; text-decoration: none; cursor: pointer;
+  color: #f1fff1; background: var(--cl-green); border: 0; border-radius: 999px; padding: 13px 22px;
+}
+.cl-btn:hover { filter: brightness(1.08); }
+.cl-btn--ghost { background: transparent; color: var(--cl-paper); border: 1.5px solid var(--cl-rule); padding: 10px 16px; font-size: 14px; }
+.cl-btn--ghost:hover { border-color: var(--cl-green); filter: none; }
+.cl-btn:focus-visible, .cl-tab:focus-visible, .cl-unmute:focus-visible, .cl-hearing-title:focus-visible { outline: 2px solid var(--cl-green-text); outline-offset: 3px; }
+
+/* ---------- multiple courtrooms ---------- */
+.cl-tabs { display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 2px; }
+.cl-tabs[hidden] { display: none; }
+.cl-tab {
+  flex: none; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font: 700 14px/1 'Figtree', system-ui, sans-serif; color: var(--cl-muted);
+  background: var(--cl-board-2); border: 1.5px solid var(--cl-rule); border-radius: 999px; padding: 10px 16px; cursor: pointer;
+}
+.cl-tab[aria-pressed="true"] { color: var(--cl-paper); border-color: var(--cl-green); background: var(--cl-board-3); }
+
+/* ---------- now showing ---------- */
+.cl-now { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 20px; margin-top: 18px; }
+.cl-now[hidden] { display: none; }
+.cl-now-title { margin-top: 6px; font-weight: 800; font-size: clamp(18px, 2.4vw, 24px); line-height: 1.2; overflow-wrap: anywhere; }
+.cl-now-meta { margin-top: 4px; color: var(--cl-faint); font-size: 14px; }
+.cl-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.cl-label { font-weight: 800; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--cl-green-text); }
+
+/* ---------- lower cards ---------- */
+.cl-grid { display: grid; grid-template-columns: 1fr; align-items: start; gap: 16px; margin-top: 28px; }
+@media (min-width: 820px) { .cl-grid { grid-template-columns: 1.1fr 1fr; } }
+.cl-card { background: var(--cl-board-2); border: 1.5px solid var(--cl-rule); border-radius: 16px; padding: 20px; }
+.cl-card > p { margin-top: 10px; color: var(--cl-muted); font-size: 15px; line-height: 1.5; }
+
+.cl-today { list-style: none; padding: 0; margin-top: 12px; }
+.cl-hearing { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; padding: 12px 0; border-top: 1.5px solid var(--cl-rule); }
+.cl-hearing:first-child { border-top: 0; }
+.cl-hearing-time { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14px; color: var(--cl-faint); white-space: nowrap; padding-top: 1px; }
+.cl-hearing.is-live .cl-hearing-time { color: var(--cl-live); }
+.cl-hearing-title { color: var(--cl-paper); font-weight: 600; font-size: 15px; line-height: 1.35; text-decoration: none; overflow-wrap: anywhere; }
+.cl-hearing-title:hover { text-decoration: underline; text-decoration-color: var(--cl-green); text-underline-offset: 3px; }
+.cl-empty { color: var(--cl-faint); font-size: 15px; padding: 6px 0; }
+
+.cl-glossary { margin-top: 12px; display: grid; gap: 10px; }
+.cl-glossary div { display: grid; gap: 2px; }
+.cl-glossary dt { font-weight: 800; font-size: 15px; }
+.cl-glossary dd { color: var(--cl-muted); font-size: 14px; line-height: 1.45; }
+
+.cl-sponsor { margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--cl-faint); font-size: 13px; }
+.cl-sponsor[hidden] { display: none; }
+.cl-sponsor a { color: var(--cl-paper); font-weight: 700; text-decoration: none; }
+
+.cl-notice {
+  margin-top: 16px; padding: 14px 16px; border-radius: 12px;
+  border: 1.5px dashed var(--cl-rule); color: var(--cl-faint); font-size: 13px; line-height: 1.5;
+}
+
+/* Site-wide header badge (court-live-badge.js) */
+.cl-nav-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  font: 800 12px/1 'Figtree', system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+  color: #fff; background: #e5484d; border-radius: 999px; padding: 7px 11px; text-decoration: none;
+}
+.cl-nav-badge[hidden] { display: none; }
+.cl-nav-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: cl-blink 1.4s ease-in-out infinite; }
+@keyframes cl-blink { 50% { opacity: .35; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cl-dot, .cl-spinner, .cl-wait::before, .cl-wait::after, .cl-nav-badge::before { animation: none !important; }
+}

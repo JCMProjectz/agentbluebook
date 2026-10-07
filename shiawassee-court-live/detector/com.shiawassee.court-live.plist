@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Runs the Court Live detector every 30 seconds on the newsroom Mac.
+  1. Fill in the paths and keys below.
+  2. cp com.shiawassee.court-live.plist ~/Library/LaunchAgents/
+  3. launchctl load ~/Library/LaunchAgents/com.shiawassee.court-live.plist
+  Logs: ~/Library/Logs/court-live.log
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.shiawassee.court-live</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/PATH/TO/shiawassee-court-live/detector/court_live_detector.py</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>YOUTUBE_API_KEY</key><string>REPLACE_WITH_KEY</string>
+    <key>COURT_STATUS_PATH</key><string>/PATH/TO/SITE/PUBLIC/court-live/status.json</string>
+    <key>NTFY_URL</key><string>https://ntfy.sh/REPLACE_WITH_TOPIC</string>
+  </dict>
+  <key>StartInterval</key><integer>30</integer>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/Users/REPLACE/Library/Logs/court-live.log</string>
+  <key>StandardErrorPath</key><string>/Users/REPLACE/Library/Logs/court-live.log</string>
+</dict>
+</plist>

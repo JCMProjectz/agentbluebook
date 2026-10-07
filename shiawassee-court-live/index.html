@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Watch Court Live — The Shiawassee Current</title>
+  <meta name="description" content="Watch Shiawassee County Circuit Court hearings live as they happen, streamed by the court and presented by The Shiawassee Current.">
+  <meta property="og:title" content="Watch Shiawassee County Circuit Court live">
+  <meta property="og:description" content="Hearings stream here automatically as they start, all day. Free for every reader.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="court-live.css">
+  <style>
+    /* Demo page chrome only. On shiawassee.news the site's own header/footer wrap the .cl section. */
+    html, body { margin: 0; background: #101b17; }
+  </style>
+</head>
+<body>
+
+<!-- ======================= COURT LIVE (drop this section into /court-live) ======================= -->
+<section class="cl" data-court-live
+         data-status-url="/court-live/status.json"
+         data-channel-id="UCY7MUpeiV56M4M5zZPNG69Q"
+         data-state="loading"
+         aria-labelledby="cl-title">
+
+  <header class="cl-head">
+    <div>
+      <span class="cl-kicker">Court · Live</span>
+      <h1 class="cl-title" id="cl-title">Shiawassee County Circuit Court</h1>
+      <p class="cl-sub">35th Circuit Court, Corunna. Hearings appear here the moment they start.</p>
+    </div>
+    <div class="cl-status" role="status" aria-live="polite"><i class="cl-dot" aria-hidden="true"></i><span class="cl-status-text">Connecting…</span></div>
+  </header>
+
+  <div class="cl-stage">
+    <div id="cl-player" class="cl-player"></div>
+
+    <div class="cl-overlay cl-overlay--loading">
+      <div class="cl-spinner" aria-hidden="true"></div>
+      <p>Checking the courtroom…</p>
+    </div>
+
+    <div class="cl-overlay cl-overlay--recess">
+      <div class="cl-wait" aria-hidden="true"><i></i></div>
+      <h2>Between hearings</h2>
+      <p>The next hearing will start playing here automatically. No need to refresh.</p>
+      <p class="cl-last"></p>
+    </div>
+
+    <div class="cl-overlay cl-overlay--closed">
+      <svg class="cl-gavel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14.5 12.5-8 8a2.12 2.12 0 0 1-3-3l8-8"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/><path d="m21 11-8-8"/></svg>
+      <h2>Court isn't in session right now</h2>
+      <p>Hearings stream on weekdays. This page goes live on its own the moment the court does.</p>
+      <a class="cl-btn" href="/#newsletter">Get the Morning Current, free</a>
+    </div>
+
+    <div class="cl-overlay cl-overlay--noembed">
+      <h2>Watch this hearing on YouTube</h2>
+      <p class="cl-noembed-text">The court has turned off playback on other websites for this hearing. It is streaming live on the court's YouTube channel.</p>
+      <a class="cl-btn cl-yt-link" target="_blank" rel="noopener">Watch live on YouTube ↗</a>
+    </div>
+
+    <button class="cl-unmute" type="button" hidden>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m23 9-6 6"/><path d="m17 9 6 6"/></svg>
+      Tap for sound
+    </button>
+  </div>
+
+  <div class="cl-tabs" role="group" aria-label="Choose a courtroom stream" hidden></div>
+
+  <div class="cl-now" hidden>
+    <div>
+      <span class="cl-label">Now showing</span>
+      <h2 class="cl-now-title"></h2>
+      <p class="cl-now-meta"></p>
+    </div>
+    <div class="cl-actions">
+      <button class="cl-btn cl-btn--ghost cl-share" type="button">Share</button>
+      <a class="cl-btn cl-btn--ghost cl-yt-link" target="_blank" rel="noopener">Open on YouTube ↗</a>
+    </div>
+  </div>
+
+  <div class="cl-grid">
+    <section class="cl-card" aria-labelledby="cl-today-h">
+      <h3 class="cl-label" id="cl-today-h">Today's hearings</h3>
+      <ol class="cl-today"><li class="cl-empty">No hearings have streamed yet today.</li></ol>
+    </section>
+
+    <section class="cl-card" aria-labelledby="cl-what-h">
+      <h3 class="cl-label" id="cl-what-h">What you're watching</h3>
+      <p>The 35th Circuit Court is Shiawassee County's main trial court. It handles felony criminal cases, civil lawsuits over $25,000, divorce and custody, and appeals from district court.</p>
+      <dl class="cl-glossary">
+        <div><dt>Arraignment</dt><dd>The defendant hears the charges and enters a plea.</dd></div>
+        <div><dt>Pretrial</dt><dd>The lawyers and judge check where the case stands. Plea agreements are often worked out here.</dd></div>
+        <div><dt>Plea</dt><dd>The defendant pleads guilty or no contest, often under an agreement with the prosecutor.</dd></div>
+        <div><dt>Sentencing</dt><dd>After a conviction, the judge decides the punishment.</dd></div>
+        <div><dt>Motion hearing</dt><dd>The judge rules on a request from one side, such as dismissing a charge.</dd></div>
+        <div><dt>Probation violation</dt><dd>The court decides whether someone broke the terms of their probation.</dd></div>
+      </dl>
+    </section>
+  </div>
+
+  <!-- Court Live sponsor slot (Marketing Playbook). Remove "hidden" and fill in once sold. -->
+  <p class="cl-sponsor" hidden>Court Live is presented by <a href="#" rel="sponsored noopener" target="_blank">Sponsor Name</a></p>
+
+  <aside class="cl-notice">
+    These hearings are streamed by the Shiawassee County Circuit Court on its official YouTube channel.
+    The Shiawassee Current shows the court's own feed and does not record, edit or rebroadcast it.
+    Court rules may prohibit recording, rebroadcasting or taking screenshots of court proceedings.
+  </aside>
+</section>
+<!-- ===================================================================================================== -->
+
+<script src="court-live.js" defer></script>
+</body>
+</html>
